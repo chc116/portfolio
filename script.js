@@ -60,6 +60,8 @@ function resetTilt(card) {
   surface.style.setProperty('--tilt-y', '0deg');
   surface.style.setProperty('--pointer-x', '50%');
   surface.style.setProperty('--pointer-y', '50%');
+  surface.style.setProperty('--shift-x', '0px');
+  surface.style.setProperty('--shift-y', '0px');
 }
 
 function setProject(index) {
@@ -128,10 +130,12 @@ cards.forEach((card, index) => {
     const px = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
     const py = Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height));
 
-    const maxTiltX = 6;
-    const maxTiltY = 8;
+    const maxTiltX = 9;
+    const maxTiltY = 12;
     const tiltY = (px - 0.5) * maxTiltY * 2;
     const tiltX = (0.5 - py) * maxTiltX * 2;
+    const shiftX = (px - 0.5) * 18;
+    const shiftY = (py - 0.5) * 12;
 
     if (tiltFrame) cancelAnimationFrame(tiltFrame);
     tiltFrame = requestAnimationFrame(() => {
@@ -140,6 +144,8 @@ cards.forEach((card, index) => {
       surface.style.setProperty('--tilt-y', tiltY.toFixed(2) + 'deg');
       surface.style.setProperty('--pointer-x', (px * 100).toFixed(1) + '%');
       surface.style.setProperty('--pointer-y', (py * 100).toFixed(1) + '%');
+      surface.style.setProperty('--shift-x', shiftX.toFixed(2) + 'px');
+      surface.style.setProperty('--shift-y', shiftY.toFixed(2) + 'px');
     });
   });
 

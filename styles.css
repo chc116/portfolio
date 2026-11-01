@@ -250,6 +250,8 @@ main {
   --tilt-y: 0deg;
   --pointer-x: 50%;
   --pointer-y: 50%;
+  --shift-x: 0px;
+  --shift-y: 0px;
   position: relative;
   width: 100%;
   height: 100%;
@@ -266,11 +268,12 @@ main {
   transform-style: preserve-3d;
   transform:
     perspective(900px)
+    translate3d(var(--shift-x), var(--shift-y), 18px)
     rotateX(var(--tilt-x))
     rotateY(var(--tilt-y))
-    translateZ(0);
+    scale(1.015);
   transition:
-    transform 90ms ease-out,
+    transform 55ms linear,
     box-shadow .22s ease,
     border-color .22s ease;
   will-change: transform;

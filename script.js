@@ -8,21 +8,22 @@ const projectToggle = document.getElementById('projectToggle');
 
 let active = 0;
 let pointerStart = null;
-let wheelLocked = false;
+let wheelAccumulator = 0;
+let wheelResetTimer = null;
+let lastWheelAt = 0;
 
-function circularDistance(index, current, total) {
-  let distance = index - current;
-  if (distance > total / 2) distance -= total;
-  if (distance < -total / 2) distance += total;
-  return distance;
+function linearDistance(index, current) {
+  return index - current;
 }
 
 function updateCarousel() {
   const total = cards.length;
-  const spacing = Math.min(window.innerWidth * 0.29, 350);
+  const spacing = window.innerWidth <= 760
+    ? Math.min(window.innerWidth * 0.78, 330)
+    : Math.min(Math.max(window.innerWidth * 0.36, 520), 640);
 
   cards.forEach((card, index) => {
-    const distance = circularDistance(index, active, total);
+    const distance = linearDistance(index, active);
     const depth = Math.abs(distance);
 
     let x = distance * spacing;
@@ -33,52 +34,166 @@ function updateCarousel() {
     const scale = 1 - depth * 0.105;
 
     card.style.transform =
-      `translate(-50%, -50%) translate3d(${x}px, 0, ${z}px) rotateY(${rotateY}deg) scale(${scale})`;
+      `translate(-50%, -50%)
+       translate3d(${x}px, 0, ${z}px)
+       rotateX(var(--tilt-x))
+       rotateY(calc(${rotateY}deg + var(--tilt-y)))
+       scale(${scale})`;
     card.style.zIndex = String(20 - depth);
-    card.style.opacity = depth === 0 ? '1' : depth === 1 ? '.43' : '.12';
-    card.style.filter = depth === 0 ? 'none' : `brightness(${Math.max(.48, 1 - depth * .23)})`;
+    card.style.opacity = depth === 0 ? '1' : depth === 1 ? '.72' : depth === 2 ? '.28' : '.10';
+    card.style.filter = depth === 0 ? 'none' : `brightness(${Math.max(.82, 1 - depth * .09)}) saturate(${Math.max(.82, 1 - depth * .08)})`;
     card.classList.toggle('active', index === active);
   });
 
   selectors.forEach((selector, index) => {
     selector.classList.toggle('active', index === active);
   });
+
+  previous.disabled = active === 0;
+  next.disabled = active === cards.length - 1;
+}
+
+function resetTilt(card) {
+  card.classList.remove('pointer-tilt');
+  card.style.setProperty('--tilt-x', '0deg');
+  card.style.setProperty('--tilt-y', '0deg');
+  card.style.setProperty('--pointer-x', '50%');
+  card.style.setProperty('--pointer-y', '50%');
 }
 
 function setProject(index) {
-  active = (index + cards.length) % cards.length;
+  cards.forEach(resetTilt);
+  active = Math.max(0, Math.min(cards.length - 1, index));
   updateCarousel();
 }
 
-function goNext() { setProject(active + 1); }
-function goPrevious() { setProject(active - 1); }
+function goNext() {
+  if (active < cards.length - 1) setProject(active + 1);
+}
 
-next.addEventListener('click', goNext);
-previous.addEventListener('click', goPrevious);
+function goPrevious() {
+  if (active > 0) setProject(active - 1);
+}
+
+function setCarouselSpeed(milliseconds) {
+  document.documentElement.style.setProperty('--carousel-speed', milliseconds + 'ms');
+}
+
+function clearWheelMotion() {
+  wheelAccumulator = 0;
+  lastWheelAt = 0;
+  setCarouselSpeed(420);
+
+  if (wheelResetTimer) {
+    clearTimeout(wheelResetTimer);
+    wheelResetTimer = null;
+  }
+}
+
+next.addEventListener('click', () => {
+  clearWheelMotion();
+  goNext();
+});
+
+previous.addEventListener('click', () => {
+  clearWheelMotion();
+  goPrevious();
+});
 
 selectors.forEach((selector) => {
-  selector.addEventListener('click', () => setProject(Number(selector.dataset.select)));
+  selector.addEventListener('click', () => {
+    clearWheelMotion();
+    setProject(Number(selector.dataset.select));
+  });
 });
 
 cards.forEach((card, index) => {
   card.addEventListener('click', () => {
+    clearWheelMotion();
     if (index !== active) setProject(index);
   });
 });
 
+let tiltFrame = null;
+
+cards.forEach((card, index) => {
+  card.addEventListener('pointermove', (event) => {
+    if (index !== active || event.pointerType === 'touch') return;
+
+    const rect = card.getBoundingClientRect();
+    const px = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+    const py = Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height));
+
+    const maxTilt = 7;
+    const tiltY = (px - 0.5) * maxTilt * 2;
+    const tiltX = (0.5 - py) * maxTilt * 2;
+
+    if (tiltFrame) cancelAnimationFrame(tiltFrame);
+    tiltFrame = requestAnimationFrame(() => {
+      card.classList.add('pointer-tilt');
+      card.style.setProperty('--tilt-x', tiltX.toFixed(2) + 'deg');
+      card.style.setProperty('--tilt-y', tiltY.toFixed(2) + 'deg');
+      card.style.setProperty('--pointer-x', (px * 100).toFixed(1) + '%');
+      card.style.setProperty('--pointer-y', (py * 100).toFixed(1) + '%');
+    });
+  });
+
+  card.addEventListener('pointerleave', () => {
+    if (tiltFrame) {
+      cancelAnimationFrame(tiltFrame);
+      tiltFrame = null;
+    }
+    resetTilt(card);
+  });
+});
+
 carousel.addEventListener('keydown', (event) => {
+  clearWheelMotion();
   if (event.key === 'ArrowRight') goNext();
   if (event.key === 'ArrowLeft') goPrevious();
 });
 
 carousel.addEventListener('wheel', (event) => {
-  if (wheelLocked || Math.abs(event.deltaY) < 8) return;
-  wheelLocked = true;
-  event.deltaY > 0 ? goNext() : goPrevious();
-  window.setTimeout(() => { wheelLocked = false; }, 460);
-}, { passive: true });
+  const delta = Math.abs(event.deltaY) >= Math.abs(event.deltaX)
+    ? event.deltaY
+    : event.deltaX;
+
+  if (Math.abs(delta) < 4) return;
+
+  event.preventDefault();
+
+  const now = performance.now();
+  const rapidInput = lastWheelAt > 0 && (now - lastWheelAt) < 170;
+  lastWheelAt = now;
+
+  // A single wheel notch stays deliberate; sustained wheel input becomes fast.
+  setCarouselSpeed(rapidInput ? 135 : 340);
+
+  wheelAccumulator += delta;
+  const threshold = 82;
+
+  let steps = 0;
+  while (Math.abs(wheelAccumulator) >= threshold && Math.abs(steps) < 3) {
+    const direction = wheelAccumulator > 0 ? 1 : -1;
+    steps += direction;
+    wheelAccumulator -= direction * threshold;
+  }
+
+  if (steps !== 0) {
+    const target = Math.max(0, Math.min(cards.length - 1, active + steps));
+    if (target !== active) setProject(target);
+  }
+
+  if (wheelResetTimer) clearTimeout(wheelResetTimer);
+  wheelResetTimer = window.setTimeout(() => {
+    wheelAccumulator = 0;
+    lastWheelAt = 0;
+    setCarouselSpeed(420);
+  }, 150);
+}, { passive: false });
 
 carousel.addEventListener('pointerdown', (event) => {
+  clearWheelMotion();
   pointerStart = event.clientX;
   carousel.setPointerCapture?.(event.pointerId);
 });
@@ -99,6 +214,7 @@ projectToggle.addEventListener('click', (event) => {
 
 document.querySelectorAll('[data-project]').forEach((button) => {
   button.addEventListener('click', () => {
+    clearWheelMotion();
     setProject(Number(button.dataset.project));
     projectNav.classList.remove('open');
     projectToggle.setAttribute('aria-expanded', 'false');

@@ -174,12 +174,56 @@ cards.forEach((card, index) => {
   });
 
   card.addEventListener('pointerleave', () => {
+    if (isDragging) return;
     if (tiltFrame) {
       cancelAnimationFrame(tiltFrame);
       tiltFrame = null;
     }
     resetTilt(card);
   });
+});
+
+function resetActiveTilt() {
+  const activeCard = cards[active];
+  if (!activeCard || isDragging) return;
+
+  if (tiltFrame) {
+    cancelAnimationFrame(tiltFrame);
+    tiltFrame = null;
+  }
+
+  resetTilt(activeCard);
+}
+
+// The transformed card can move away from the pointer itself,
+// so also verify from the surrounding carousel rather than relying
+// only on the card's own pointerleave event.
+carousel.addEventListener('pointermove', (event) => {
+  if (isDragging) return;
+
+  const activeCard = cards[active];
+  if (!activeCard || !activeCard.classList.contains('pointer-tilt')) return;
+
+  const surface = activeCard.querySelector('.card-surface');
+  if (!surface) return;
+
+  const rect = surface.getBoundingClientRect();
+  const padding = 3;
+  const inside =
+    event.clientX >= rect.left - padding &&
+    event.clientX <= rect.right + padding &&
+    event.clientY >= rect.top - padding &&
+    event.clientY <= rect.bottom + padding;
+
+  if (!inside) resetActiveTilt();
+});
+
+carousel.addEventListener('pointerleave', () => {
+  resetActiveTilt();
+});
+
+window.addEventListener('blur', () => {
+  resetActiveTilt();
 });
 
 carousel.addEventListener('keydown', (event) => {

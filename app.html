@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-build="20261102-app-shell-v1">
+<html lang="en" data-build="20261102-mouse-tilt-v1">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -240,6 +240,10 @@ main {
 
 .project-card {
   --accent: var(--blue);
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  --pointer-x: 50%;
+  --pointer-y: 50%;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -261,14 +265,22 @@ main {
     transform var(--carousel-speed, 420ms) cubic-bezier(.18,.82,.24,1),
     opacity var(--carousel-speed, 420ms) ease,
     filter var(--carousel-speed, 420ms) ease,
-    border-color .24s ease;
+    border-color .24s ease,
+    box-shadow .22s ease;
 }
 
 .project-card::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 50% 38%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 54%);
+  background:
+    radial-gradient(circle at var(--pointer-x) var(--pointer-y),
+      rgba(255,255,255,.60),
+      rgba(255,255,255,.18) 18%,
+      transparent 43%),
+    radial-gradient(circle at 50% 38%,
+      color-mix(in srgb, var(--accent) 18%, transparent),
+      transparent 54%);
   pointer-events: none;
 }
 
@@ -284,6 +296,12 @@ main {
 }
 
 .project-card.active { border-color: var(--line-strong); }
+
+.project-card.active.pointer-tilt {
+  box-shadow:
+    0 36px 82px rgba(74,61,44,.16),
+    inset 0 1px rgba(255,255,255,.84);
+}
 
 .project-card:nth-child(1) { --accent: var(--blue); }
 .project-card:nth-child(2) { --accent: var(--violet); }
@@ -598,7 +616,11 @@ function updateCarousel() {
     const scale = 1 - depth * 0.105;
 
     card.style.transform =
-      `translate(-50%, -50%) translate3d(${x}px, 0, ${z}px) rotateY(${rotateY}deg) scale(${scale})`;
+      `translate(-50%, -50%)
+       translate3d(${x}px, 0, ${z}px)
+       rotateX(var(--tilt-x))
+       rotateY(calc(${rotateY}deg + var(--tilt-y)))
+       scale(${scale})`;
     card.style.zIndex = String(20 - depth);
     card.style.opacity = depth === 0 ? '1' : depth === 1 ? '.72' : depth === 2 ? '.28' : '.10';
     card.style.filter = depth === 0 ? 'none' : `brightness(${Math.max(.82, 1 - depth * .09)}) saturate(${Math.max(.82, 1 - depth * .08)})`;
@@ -613,7 +635,16 @@ function updateCarousel() {
   next.disabled = active === cards.length - 1;
 }
 
+function resetTilt(card) {
+  card.classList.remove('pointer-tilt');
+  card.style.setProperty('--tilt-x', '0deg');
+  card.style.setProperty('--tilt-y', '0deg');
+  card.style.setProperty('--pointer-x', '50%');
+  card.style.setProperty('--pointer-y', '50%');
+}
+
 function setProject(index) {
+  cards.forEach(resetTilt);
   active = Math.max(0, Math.min(cards.length - 1, index));
   updateCarousel();
 }
@@ -662,6 +693,39 @@ cards.forEach((card, index) => {
   card.addEventListener('click', () => {
     clearWheelMotion();
     if (index !== active) setProject(index);
+  });
+});
+
+let tiltFrame = null;
+
+cards.forEach((card, index) => {
+  card.addEventListener('pointermove', (event) => {
+    if (index !== active || event.pointerType === 'touch') return;
+
+    const rect = card.getBoundingClientRect();
+    const px = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+    const py = Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height));
+
+    const maxTilt = 7;
+    const tiltY = (px - 0.5) * maxTilt * 2;
+    const tiltX = (0.5 - py) * maxTilt * 2;
+
+    if (tiltFrame) cancelAnimationFrame(tiltFrame);
+    tiltFrame = requestAnimationFrame(() => {
+      card.classList.add('pointer-tilt');
+      card.style.setProperty('--tilt-x', tiltX.toFixed(2) + 'deg');
+      card.style.setProperty('--tilt-y', tiltY.toFixed(2) + 'deg');
+      card.style.setProperty('--pointer-x', (px * 100).toFixed(1) + '%');
+      card.style.setProperty('--pointer-y', (py * 100).toFixed(1) + '%');
+    });
+  });
+
+  card.addEventListener('pointerleave', () => {
+    if (tiltFrame) {
+      cancelAnimationFrame(tiltFrame);
+      tiltFrame = null;
+    }
+    resetTilt(card);
   });
 });
 
@@ -758,4 +822,4 @@ updateCarousel();
 </body>
 </html>
 
-<!-- portfolio-build: 20261102-app-shell-v1 -->
+<!-- portfolio-build: 20261102-mouse-tilt-v1 -->

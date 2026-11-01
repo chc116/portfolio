@@ -211,6 +211,7 @@ main {
 
 .carousel {
   position: relative;
+  cursor: grab;
   width: 100%;
   height: min(570px, 64vh);
   display: flex;
@@ -221,6 +222,18 @@ main {
   touch-action: pan-y;
   user-select: none;
   outline: none;
+}
+
+.carousel.dragging {
+  cursor: grabbing;
+}
+
+.carousel.dragging .project-card {
+  transition: none !important;
+}
+
+.carousel.dragging .card-surface {
+  transition: transform 40ms linear, box-shadow .12s ease, border-color .12s ease;
 }
 
 .stage {

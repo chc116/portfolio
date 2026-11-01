@@ -8,6 +8,14 @@ const projectToggle = document.getElementById('projectToggle');
 
 let active = 0;
 let pointerStart = null;
+let dragOffset = 0;
+let dragStartX = 0;
+let dragLastX = 0;
+let dragLastTime = 0;
+let dragVelocity = 0;
+let isDragging = false;
+let dragMoved = false;
+let suppressClick = false;
 let wheelAccumulator = 0;
 let wheelResetTimer = null;
 let lastWheelAt = 0;
@@ -16,11 +24,15 @@ function linearDistance(index, current) {
   return index - current;
 }
 
-function updateCarousel() {
-  const total = cards.length;
-  const spacing = window.innerWidth <= 760
+function getCardSpacing() {
+  return window.innerWidth <= 760
     ? Math.min(window.innerWidth * 0.78, 330)
     : Math.min(Math.max(window.innerWidth * 0.36, 520), 640);
+}
+
+function updateCarousel() {
+  const total = cards.length;
+  const spacing = getCardSpacing();
 
   cards.forEach((card, index) => {
     const distance = linearDistance(index, active);
@@ -28,6 +40,14 @@ function updateCarousel() {
 
     let x = distance * spacing;
     if (depth > 1) x *= 1.05;
+
+    let liveOffset = dragOffset;
+    if ((active === 0 && liveOffset > 0) ||
+        (active === cards.length - 1 && liveOffset < 0)) {
+      liveOffset *= 0.28;
+    }
+
+    x += liveOffset;
 
     const z = -depth * 220;
     const rotateY = distance * -19;
@@ -111,7 +131,11 @@ selectors.forEach((selector) => {
 });
 
 cards.forEach((card, index) => {
-  card.addEventListener('click', () => {
+  card.addEventListener('click', (event) => {
+    if (suppressClick) {
+      event.preventDefault();
+      return;
+    }
     clearWheelMotion();
     if (index !== active) setProject(index);
   });
@@ -124,7 +148,7 @@ cards.forEach((card, index) => {
   if (!surface) return;
 
   card.addEventListener('pointermove', (event) => {
-    if (index !== active || event.pointerType === 'touch') return;
+    if (index !== active || event.pointerType === 'touch' || isDragging) return;
 
     const rect = surface.getBoundingClientRect();
     const px = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
@@ -204,18 +228,87 @@ carousel.addEventListener('wheel', (event) => {
 }, { passive: false });
 
 carousel.addEventListener('pointerdown', (event) => {
+  if (event.pointerType === 'mouse' && event.button !== 0) return;
+
   clearWheelMotion();
+  cards.forEach(resetTilt);
+
   pointerStart = event.clientX;
+  dragStartX = event.clientX;
+  dragLastX = event.clientX;
+  dragLastTime = performance.now();
+  dragVelocity = 0;
+  dragOffset = 0;
+  dragMoved = false;
+  isDragging = true;
+  suppressClick = false;
+
+  setCarouselSpeed(0);
+  carousel.classList.add('dragging');
   carousel.setPointerCapture?.(event.pointerId);
 });
 
-carousel.addEventListener('pointerup', (event) => {
-  if (pointerStart === null) return;
-  const movement = event.clientX - pointerStart;
-  if (movement > 55) goPrevious();
-  if (movement < -55) goNext();
-  pointerStart = null;
+carousel.addEventListener('pointermove', (event) => {
+  if (!isDragging || pointerStart === null) return;
+
+  const now = performance.now();
+  const dx = event.clientX - dragStartX;
+  const stepDx = event.clientX - dragLastX;
+  const dt = Math.max(1, now - dragLastTime);
+
+  dragVelocity = stepDx / dt;
+  dragLastX = event.clientX;
+  dragLastTime = now;
+
+  dragOffset = dx;
+  if (Math.abs(dx) > 6) dragMoved = true;
+
+  updateCarousel();
 });
+
+function finishDrag(event) {
+  if (!isDragging || pointerStart === null) return;
+
+  const spacing = getCardSpacing();
+  const projected = dragOffset + dragVelocity * 150;
+
+  let step = Math.round(-projected / spacing);
+
+  if (step === 0 && Math.abs(dragOffset) > 70) {
+    step = dragOffset < 0 ? 1 : -1;
+  }
+
+  step = Math.max(-2, Math.min(2, step));
+
+  const target = Math.max(0, Math.min(cards.length - 1, active + step));
+
+  suppressClick = dragMoved;
+  isDragging = false;
+  pointerStart = null;
+  dragOffset = 0;
+  dragVelocity = 0;
+
+  carousel.classList.remove('dragging');
+  setCarouselSpeed(300);
+
+  if (target !== active) {
+    active = target;
+  }
+
+  updateCarousel();
+
+  window.setTimeout(() => {
+    setCarouselSpeed(420);
+    suppressClick = false;
+  }, 320);
+
+  try {
+    carousel.releasePointerCapture?.(event.pointerId);
+  } catch (_) {}
+}
+
+carousel.addEventListener('pointerup', finishDrag);
+carousel.addEventListener('pointercancel', finishDrag);
 
 projectToggle.addEventListener('click', (event) => {
   event.stopPropagation();

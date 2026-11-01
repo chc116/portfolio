@@ -16,6 +16,7 @@ let dragVelocity = 0;
 let isDragging = false;
 let dragMoved = false;
 let suppressClick = false;
+let pointerDownCardIndex = null;
 let wheelAccumulator = 0;
 let wheelResetTimer = null;
 let lastWheelAt = 0;
@@ -135,17 +136,6 @@ selectors.forEach((selector) => {
   });
 });
 
-cards.forEach((card, index) => {
-  card.addEventListener('click', (event) => {
-    if (suppressClick) {
-      event.preventDefault();
-      return;
-    }
-    clearWheelMotion();
-    if (index !== active) setProject(index);
-  });
-});
-
 let tiltFrame = null;
 let hoveredTiltCard = null;
 
@@ -173,14 +163,31 @@ function cardContainsPointer(card, x, y) {
 
 function findVisualCardAtPointer(x, y) {
   const candidates = cards
-    .map((card) => cardContainsPointer(card, x, y))
+    .map((card, index) => {
+      const hit = cardContainsPointer(card, x, y);
+      if (!hit) return null;
+
+      const opacity = Number.parseFloat(card.style.opacity || '1');
+      if (opacity < 0.08) return null;
+
+      const centerX = hit.rect.left + hit.rect.width / 2;
+      const centerDistance = Math.abs(x - centerX);
+
+      return { ...hit, index, centerDistance, opacity };
+    })
     .filter(Boolean);
 
   if (!candidates.length) return null;
 
-  // In overlap regions, follow the card whose visible face is closest
-  // to the pointer rather than relying on browser hit testing.
-  candidates.sort((a, b) => a.normalizedDistance - b.normalizedDistance);
+  // Choose the card whose visible face center is nearest to the pointer.
+  // This makes side cards independently hoverable/clickable even when
+  // their transformed bounding boxes overlap the active card.
+  candidates.sort((a, b) => {
+    const centerDiff = a.centerDistance - b.centerDistance;
+    if (Math.abs(centerDiff) > 1) return centerDiff;
+    return b.opacity - a.opacity;
+  });
+
   return candidates[0];
 }
 
@@ -302,6 +309,9 @@ carousel.addEventListener('pointerdown', (event) => {
   resetHoveredTiltCard(false);
   cards.forEach((card) => resetTilt(card, false));
 
+  const downHit = findVisualCardAtPointer(event.clientX, event.clientY);
+  pointerDownCardIndex = downHit ? downHit.index : null;
+
   pointerStart = event.clientX;
   dragStartX = event.clientX;
   dragLastX = event.clientX;
@@ -338,27 +348,38 @@ carousel.addEventListener('pointermove', (event) => {
 function finishDrag(event) {
   if (!isDragging || pointerStart === null) return;
 
-  const spacing = getCardSpacing();
-  const projected = dragOffset + dragVelocity * 150;
+  let target = active;
 
-  let step = Math.round(-projected / spacing);
+  if (!dragMoved) {
+    const upHit = findVisualCardAtPointer(event.clientX, event.clientY);
+    const clickedIndex = upHit ? upHit.index : pointerDownCardIndex;
 
-  if (step === 0 && Math.abs(dragOffset) > 70) {
-    step = dragOffset < 0 ? 1 : -1;
+    if (clickedIndex !== null && clickedIndex !== undefined) {
+      target = clickedIndex;
+    }
+  } else {
+    const spacing = getCardSpacing();
+    const projected = dragOffset + dragVelocity * 150;
+
+    let step = Math.round(-projected / spacing);
+
+    if (step === 0 && Math.abs(dragOffset) > 70) {
+      step = dragOffset < 0 ? 1 : -1;
+    }
+
+    step = Math.max(-2, Math.min(2, step));
+    target = Math.max(0, Math.min(cards.length - 1, active + step));
   }
-
-  step = Math.max(-2, Math.min(2, step));
-
-  const target = Math.max(0, Math.min(cards.length - 1, active + step));
 
   suppressClick = dragMoved;
   isDragging = false;
   pointerStart = null;
+  pointerDownCardIndex = null;
   dragOffset = 0;
   dragVelocity = 0;
 
   carousel.classList.remove('dragging');
-  setCarouselSpeed(300);
+  setCarouselSpeed(dragMoved ? 300 : 360);
 
   if (target !== active) {
     active = target;
@@ -369,7 +390,7 @@ function finishDrag(event) {
   window.setTimeout(() => {
     setCarouselSpeed(420);
     suppressClick = false;
-  }, 320);
+  }, 360);
 
   try {
     carousel.releasePointerCapture?.(event.pointerId);

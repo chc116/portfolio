@@ -251,6 +251,7 @@ main {
   width: min(430px, 76vw);
   height: 380px;
   cursor: pointer;
+  pointer-events: none; /* carousel owns interaction */
   transform-style: preserve-3d;
   transition:
     transform var(--carousel-speed, 420ms) cubic-bezier(.18,.82,.24,1),
@@ -259,6 +260,7 @@ main {
 }
 
 .card-surface {
+  pointer-events: none;
   --tilt-x: 0deg;
   --tilt-y: 0deg;
   --pointer-x: 50%;

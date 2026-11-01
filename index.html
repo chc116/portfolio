@@ -16,8 +16,10 @@
 <body>
   <script>
     (async () => {
+      const APP_VERSION = '20261102-mouse-tilt-v5-index-sync';
       try {
         const url = new URL('app.html', window.location.href);
+        url.searchParams.set('v', APP_VERSION);
         url.searchParams.set('fresh', Date.now().toString());
 
         const response = await fetch(url.toString(), {
@@ -39,3 +41,4 @@
   </script>
 </body>
 </html>
+<!-- portfolio-entry-build: 20261102-mouse-tilt-v5-index-sync -->

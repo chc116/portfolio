@@ -233,7 +233,7 @@ main {
 }
 
 .carousel.dragging .card-surface {
-  transition: transform 40ms linear, box-shadow .12s ease, border-color .12s ease;
+  transition: transform 45ms linear, box-shadow .12s ease, border-color .12s ease;
 }
 
 .stage {
@@ -286,9 +286,9 @@ main {
     rotateY(var(--tilt-y))
     scale(1.015);
   transition:
-    transform 80ms ease-out,
-    box-shadow .22s ease,
-    border-color .22s ease;
+    transform 180ms cubic-bezier(.22,.61,.36,1),
+    box-shadow .28s ease,
+    border-color .28s ease;
   will-change: transform;
 }
 
@@ -327,6 +327,19 @@ main {
   box-shadow:
     0 36px 82px rgba(74,61,44,.16),
     inset 0 1px rgba(255,255,255,.84);
+}
+
+.project-card.pointer-tilt:not(.active) .card-surface {
+  box-shadow:
+    0 30px 66px rgba(74,61,44,.13),
+    inset 0 1px rgba(255,255,255,.82);
+}
+
+.project-card.tilt-reset .card-surface {
+  transition:
+    transform 520ms cubic-bezier(.16,.72,.26,1),
+    box-shadow 420ms ease,
+    border-color .28s ease;
 }
 
 .project-card:nth-child(1) { --accent: var(--blue); }

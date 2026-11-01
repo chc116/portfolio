@@ -72,9 +72,10 @@ function updateCarousel() {
   next.disabled = active === cards.length - 1;
 }
 
-function resetTilt(card) {
+function resetTilt(card, slow = false) {
   const surface = card.querySelector('.card-surface');
   card.classList.remove('pointer-tilt');
+  card.classList.toggle('tilt-reset', slow);
   if (!surface) return;
   surface.style.setProperty('--tilt-x', '0deg');
   surface.style.setProperty('--tilt-y', '0deg');
@@ -82,6 +83,10 @@ function resetTilt(card) {
   surface.style.setProperty('--pointer-y', '50%');
   surface.style.setProperty('--shift-x', '0px');
   surface.style.setProperty('--shift-y', '0px');
+
+  if (slow) {
+    window.setTimeout(() => card.classList.remove('tilt-reset'), 560);
+  }
 }
 
 function setProject(index) {
@@ -148,21 +153,28 @@ cards.forEach((card, index) => {
   if (!surface) return;
 
   card.addEventListener('pointermove', (event) => {
-    if (index !== active || event.pointerType === 'touch' || isDragging) return;
+    if (event.pointerType === 'touch' || isDragging) return;
 
     const rect = surface.getBoundingClientRect();
     const px = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
     const py = Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height));
 
-    const maxTiltX = 9;
-    const maxTiltY = 12;
+    const depth = Math.abs(index - active);
+    const strength = depth === 0 ? 1 : depth === 1 ? 0.72 : 0.48;
+
+    const maxTiltX = 9 * strength;
+    const maxTiltY = 12 * strength;
+    const maxShiftX = 18 * strength;
+    const maxShiftY = 12 * strength;
+
     const tiltY = (px - 0.5) * maxTiltY * 2;
     const tiltX = (0.5 - py) * maxTiltX * 2;
-    const shiftX = (px - 0.5) * 18;
-    const shiftY = (py - 0.5) * 12;
+    const shiftX = (px - 0.5) * maxShiftX;
+    const shiftY = (py - 0.5) * maxShiftY;
 
     if (tiltFrame) cancelAnimationFrame(tiltFrame);
     tiltFrame = requestAnimationFrame(() => {
+      card.classList.remove('tilt-reset');
       card.classList.add('pointer-tilt');
       surface.style.setProperty('--tilt-x', tiltX.toFixed(2) + 'deg');
       surface.style.setProperty('--tilt-y', tiltY.toFixed(2) + 'deg');
@@ -179,51 +191,55 @@ cards.forEach((card, index) => {
       cancelAnimationFrame(tiltFrame);
       tiltFrame = null;
     }
-    resetTilt(card);
+    resetTilt(card, true);
   });
 });
 
-function resetActiveTilt() {
-  const activeCard = cards[active];
-  if (!activeCard || isDragging) return;
+function resetTiltedCards(slow = true) {
+  if (isDragging) return;
 
   if (tiltFrame) {
     cancelAnimationFrame(tiltFrame);
     tiltFrame = null;
   }
 
-  resetTilt(activeCard);
+  cards.forEach((card) => {
+    if (card.classList.contains('pointer-tilt')) {
+      resetTilt(card, slow);
+    }
+  });
 }
 
-// The transformed card can move away from the pointer itself,
-// so also verify from the surrounding carousel rather than relying
-// only on the card's own pointerleave event.
+// A transformed card can move away from the cursor itself.
+// Check every currently tilted card against the live pointer position,
+// so side cards return naturally too.
 carousel.addEventListener('pointermove', (event) => {
   if (isDragging) return;
 
-  const activeCard = cards[active];
-  if (!activeCard || !activeCard.classList.contains('pointer-tilt')) return;
+  cards.forEach((card) => {
+    if (!card.classList.contains('pointer-tilt')) return;
 
-  const surface = activeCard.querySelector('.card-surface');
-  if (!surface) return;
+    const surface = card.querySelector('.card-surface');
+    if (!surface) return;
 
-  const rect = surface.getBoundingClientRect();
-  const padding = 3;
-  const inside =
-    event.clientX >= rect.left - padding &&
-    event.clientX <= rect.right + padding &&
-    event.clientY >= rect.top - padding &&
-    event.clientY <= rect.bottom + padding;
+    const rect = surface.getBoundingClientRect();
+    const padding = 4;
+    const inside =
+      event.clientX >= rect.left - padding &&
+      event.clientX <= rect.right + padding &&
+      event.clientY >= rect.top - padding &&
+      event.clientY <= rect.bottom + padding;
 
-  if (!inside) resetActiveTilt();
+    if (!inside) resetTilt(card, true);
+  });
 });
 
 carousel.addEventListener('pointerleave', () => {
-  resetActiveTilt();
+  resetTiltedCards(true);
 });
 
 window.addEventListener('blur', () => {
-  resetActiveTilt();
+  resetTiltedCards(true);
 });
 
 carousel.addEventListener('keydown', (event) => {

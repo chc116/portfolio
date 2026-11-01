@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-build="20261102-live-wheel-v1">
+<html lang="en" data-build="20261102-no-auto-reload-v1">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -758,43 +758,7 @@ window.addEventListener('resize', updateCarousel);
 updateCarousel();
 
   </script>
-
-  <script>
-  (() => {
-    const currentBuild = document.documentElement.dataset.build || '';
-    const checkForUpdate = async () => {
-      try {
-        const url = new URL('index.html', window.location.href);
-        url.searchParams.set('_check', Date.now().toString());
-
-        const response = await fetch(url.toString(), {
-          cache: 'no-store',
-          headers: { 'Cache-Control': 'no-cache' }
-        });
-
-        if (!response.ok) return;
-
-        const freshHtml = await response.text();
-        const match = freshHtml.match(/<html[^>]*data-build=["']([^"']+)["']/i);
-        const freshBuild = match ? match[1] : '';
-
-        if (!freshBuild || freshBuild === currentBuild) return;
-
-        document.open();
-        document.write(freshHtml);
-        document.close();
-      } catch (_) {
-        // Stay on the current page if the network check fails.
-      }
-    };
-
-    window.addEventListener('load', () => {
-      setTimeout(checkForUpdate, 250);
-    });
-  })();
-  </script>
-
 </body>
 </html>
 
-<!-- portfolio-build: 20261102-live-wheel-v1 -->
+<!-- portfolio-build: 20261102-no-auto-reload-v1 -->

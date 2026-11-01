@@ -36,8 +36,7 @@ function updateCarousel() {
     card.style.transform =
       `translate(-50%, -50%)
        translate3d(${x}px, 0, ${z}px)
-       rotateX(var(--tilt-x))
-       rotateY(calc(${rotateY}deg + var(--tilt-y)))
+       rotateY(${rotateY}deg)
        scale(${scale})`;
     card.style.zIndex = String(20 - depth);
     card.style.opacity = depth === 0 ? '1' : depth === 1 ? '.72' : depth === 2 ? '.28' : '.10';
@@ -54,11 +53,13 @@ function updateCarousel() {
 }
 
 function resetTilt(card) {
+  const surface = card.querySelector('.card-surface');
   card.classList.remove('pointer-tilt');
-  card.style.setProperty('--tilt-x', '0deg');
-  card.style.setProperty('--tilt-y', '0deg');
-  card.style.setProperty('--pointer-x', '50%');
-  card.style.setProperty('--pointer-y', '50%');
+  if (!surface) return;
+  surface.style.setProperty('--tilt-x', '0deg');
+  surface.style.setProperty('--tilt-y', '0deg');
+  surface.style.setProperty('--pointer-x', '50%');
+  surface.style.setProperty('--pointer-y', '50%');
 }
 
 function setProject(index) {
@@ -117,24 +118,28 @@ cards.forEach((card, index) => {
 let tiltFrame = null;
 
 cards.forEach((card, index) => {
+  const surface = card.querySelector('.card-surface');
+  if (!surface) return;
+
   card.addEventListener('pointermove', (event) => {
     if (index !== active || event.pointerType === 'touch') return;
 
-    const rect = card.getBoundingClientRect();
+    const rect = surface.getBoundingClientRect();
     const px = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
     const py = Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height));
 
-    const maxTilt = 7;
-    const tiltY = (px - 0.5) * maxTilt * 2;
-    const tiltX = (0.5 - py) * maxTilt * 2;
+    const maxTiltX = 6;
+    const maxTiltY = 8;
+    const tiltY = (px - 0.5) * maxTiltY * 2;
+    const tiltX = (0.5 - py) * maxTiltX * 2;
 
     if (tiltFrame) cancelAnimationFrame(tiltFrame);
     tiltFrame = requestAnimationFrame(() => {
       card.classList.add('pointer-tilt');
-      card.style.setProperty('--tilt-x', tiltX.toFixed(2) + 'deg');
-      card.style.setProperty('--tilt-y', tiltY.toFixed(2) + 'deg');
-      card.style.setProperty('--pointer-x', (px * 100).toFixed(1) + '%');
-      card.style.setProperty('--pointer-y', (py * 100).toFixed(1) + '%');
+      surface.style.setProperty('--tilt-x', tiltX.toFixed(2) + 'deg');
+      surface.style.setProperty('--tilt-y', tiltY.toFixed(2) + 'deg');
+      surface.style.setProperty('--pointer-x', (px * 100).toFixed(1) + '%');
+      surface.style.setProperty('--pointer-y', (py * 100).toFixed(1) + '%');
     });
   });
 

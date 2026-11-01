@@ -3,213 +3,93 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Yechen Wang — engineering, research, machine learning and wireless communications portfolio." />
+  <meta name="description" content="Yechen Wang — portfolio." />
   <title>Yechen Wang — Portfolio</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="page-noise"></div>
+  <div class="ambient" aria-hidden="true"></div>
 
   <header class="site-header">
-    <a class="brand" href="#top" aria-label="Home">
-      <span class="brand-dot"></span>
-      <span data-editable data-key="brand">YW</span>
-    </a>
+    <a class="brand" href="index.html">Yechen Wang</a>
 
-    <nav class="nav-links" aria-label="Primary navigation">
-      <a href="#work">Work</a>
-      <a href="#about">About</a>
-      <a href="#contact">Contact</a>
+    <nav class="main-nav" aria-label="Primary navigation">
+      <a class="active" href="index.html">Home</a>
+
+      <div class="project-nav" id="projectNav">
+        <button class="project-toggle" id="projectToggle" type="button" aria-expanded="false">
+          Projects <span class="chevron">⌄</span>
+        </button>
+        <div class="project-menu" id="projectMenu">
+          <button type="button" data-project="0"><span>1</span>MPhil Research</button>
+          <button type="button" data-project="1"><span>2</span>ICASSP Research Project</button>
+          <button type="button" data-project="2"><span>3</span>Bachelor Thesis</button>
+          <button type="button" data-project="3"><span>4</span>Engineering Design</button>
+          <button type="button" data-project="4"><span>5</span>Engineering Internship</button>
+        </div>
+      </div>
+
+      <a class="future-link" href="#" aria-label="About page coming next">About</a>
     </nav>
-
-    <div class="header-actions">
-      <button class="icon-button" id="themeToggle" aria-label="Toggle theme">◐</button>
-      <button class="edit-button" id="editToggle">Edit content</button>
-    </div>
   </header>
 
-  <main id="top">
-    <section class="hero section-shell">
-      <div class="hero-kicker reveal">
-        <span class="status-dot"></span>
-        <span data-editable data-key="availability">Available for engineering & research opportunities</span>
-      </div>
-
-      <div class="hero-grid">
-        <div class="hero-copy reveal">
-          <p class="eyebrow" data-editable data-key="eyebrow">RESEARCH · ENGINEERING · MACHINE LEARNING</p>
-          <h1>
-            <span data-editable data-key="heroLine1">I build intelligent systems</span>
-            <span class="muted-line" data-editable data-key="heroLine2">from theory to working prototypes.</span>
-          </h1>
-          <p class="hero-intro" data-editable data-key="heroIntro">
-            MPhil researcher working across Gaussian processes, wireless communications, numerical simulation and real-time web systems.
-          </p>
-          <div class="hero-actions">
-            <a class="primary-cta" href="#work">View selected work <span>↘</span></a>
-            <a class="text-cta" href="#contact">Get in touch</a>
-          </div>
-        </div>
-
-        <aside class="hero-card reveal" aria-label="Profile summary">
-          <div class="card-orbit orbit-one"></div>
-          <div class="card-orbit orbit-two"></div>
-          <div class="hero-card-inner">
-            <div class="profile-mark">YW</div>
-            <div>
-              <p class="mini-label">CURRENT FOCUS</p>
-              <h2 data-editable data-key="focusTitle">Sparse online learning for sequential wireless channel reconstruction.</h2>
-            </div>
-            <div class="mini-stats">
-              <div>
-                <strong data-editable data-key="stat1">GP</strong>
-                <span data-editable data-key="stat1Label">Bayesian modelling</span>
-              </div>
-              <div>
-                <strong data-editable data-key="stat2">MATLAB</strong>
-                <span data-editable data-key="stat2Label">Simulation</span>
-              </div>
-              <div>
-                <strong data-editable data-key="stat3">WebRTC</strong>
-                <span data-editable data-key="stat3Label">Real-time systems</span>
-              </div>
-            </div>
-          </div>
-        </aside>
-      </div>
+  <main>
+    <section class="intro">
+      <p>PORTFOLIO</p>
+      <h1>Selected work.</h1>
     </section>
 
-    <section class="ticker" aria-label="Capabilities">
-      <div class="ticker-track">
-        <span>Gaussian Processes</span><span>Bayesian Inference</span><span>Wireless Communications</span><span>MATLAB</span><span>Python</span><span>WebRTC</span><span>Numerical Simulation</span><span>Machine Learning</span>
-        <span>Gaussian Processes</span><span>Bayesian Inference</span><span>Wireless Communications</span><span>MATLAB</span><span>Python</span><span>WebRTC</span><span>Numerical Simulation</span><span>Machine Learning</span>
-      </div>
-    </section>
-
-    <section id="work" class="section-shell work-section">
-      <div class="section-heading reveal">
-        <p class="eyebrow">SELECTED WORK</p>
-        <h2 data-editable data-key="workHeading">A small set of projects that show how I think and build.</h2>
-      </div>
-
-      <div class="projects-grid">
-        <article class="project-card project-featured reveal">
-          <div class="project-visual visual-gp">
-            <div class="mesh"></div>
-            <div class="gp-line gp-line-a"></div>
-            <div class="gp-line gp-line-b"></div>
-            <div class="gp-line gp-line-c"></div>
-            <div class="visual-label">01 / RESEARCH</div>
-          </div>
-          <div class="project-content">
-            <div class="project-meta">
-              <span>Flagship project</span>
-              <span>2026</span>
-            </div>
-            <h3 data-editable data-key="project1Title">Sparse Online Gaussian Processes for Fluid Antenna Systems</h3>
-            <p data-editable data-key="project1Desc">A fixed-budget sequential Bayesian reconstruction framework designed to preserve uncertainty information while controlling online computation.</p>
-            <div class="project-tags"><span>Gaussian Process</span><span>Bayesian Inference</span><span>MATLAB</span></div>
-            <button class="project-link" data-project="1">Open case study <span>↗</span></button>
-          </div>
+    <section class="carousel" id="carousel" tabindex="0" aria-label="Selected projects">
+      <div class="stage">
+        <article class="project-card" data-index="0">
+          <div class="card-top"><span class="number">1</span><span class="type">Research</span></div>
+          <div class="visual"><span class="ring"></span><span class="dot"></span></div>
+          <h2>MPhil Research</h2>
         </article>
 
-        <article class="project-card reveal">
-          <div class="project-visual visual-webrtc">
-            <div class="video-frame frame-a"></div>
-            <div class="video-frame frame-b"></div>
-            <div class="signal signal-1"></div>
-            <div class="signal signal-2"></div>
-            <div class="signal signal-3"></div>
-            <div class="visual-label">02 / ENGINEERING</div>
-          </div>
-          <div class="project-content">
-            <div class="project-meta"><span>Web prototype</span><span>2026</span></div>
-            <h3 data-editable data-key="project2Title">Real-Time Browser Video Calling</h3>
-            <p data-editable data-key="project2Desc">A WebRTC-based calling prototype focused on stable cross-region communication, browser compatibility and practical latency trade-offs.</p>
-            <div class="project-tags"><span>WebRTC</span><span>JavaScript</span><span>ONNX</span></div>
-            <button class="project-link" data-project="2">Open case study <span>↗</span></button>
-          </div>
+        <article class="project-card" data-index="1">
+          <div class="card-top"><span class="number">2</span><span class="type">Research Project</span></div>
+          <div class="visual"><span class="ring"></span><span class="dot"></span></div>
+          <h2>ICASSP Research Project</h2>
         </article>
 
-        <article class="project-card reveal">
-          <div class="project-visual visual-coaching">
-            <div class="lane lane-1"></div><div class="lane lane-2"></div><div class="lane lane-3"></div><div class="lane lane-4"></div><div class="lane lane-5"></div><div class="lane lane-6"></div>
-            <div class="visual-label">03 / LEADERSHIP</div>
-          </div>
-          <div class="project-content">
-            <div class="project-meta"><span>Coaching</span><span>Ongoing</span></div>
-            <h3 data-editable data-key="project3Title">Swim Training Design & Multi-Lane Coaching</h3>
-            <p data-editable data-key="project3Desc">Structured endurance and threshold sessions for multi-lane squads, balancing training stimulus, pacing, rest consistency and live supervision.</p>
-            <div class="project-tags"><span>Leadership</span><span>Planning</span><span>Performance</span></div>
-            <button class="project-link" data-project="3">Open case study <span>↗</span></button>
-          </div>
+        <article class="project-card" data-index="2">
+          <div class="card-top"><span class="number">3</span><span class="type">Undergraduate Research</span></div>
+          <div class="visual"><span class="ring"></span><span class="dot"></span></div>
+          <h2>Bachelor Thesis</h2>
+        </article>
+
+        <article class="project-card" data-index="3">
+          <div class="card-top"><span class="number">4</span><span class="type">Engineering</span></div>
+          <div class="visual"><span class="ring"></span><span class="dot"></span></div>
+          <h2>Engineering Design</h2>
+        </article>
+
+        <article class="project-card" data-index="4">
+          <div class="card-top"><span class="number">5</span><span class="type">Industry</span></div>
+          <div class="visual"><span class="ring"></span><span class="dot"></span></div>
+          <h2>Engineering Internship</h2>
         </article>
       </div>
     </section>
 
-    <section id="about" class="about-section section-shell">
-      <div class="about-grid">
-        <div class="section-heading reveal">
-          <p class="eyebrow">ABOUT</p>
-          <h2 data-editable data-key="aboutHeading">I like problems where mathematical structure has to survive contact with real implementation.</h2>
-        </div>
-        <div class="about-copy reveal">
-          <p data-editable data-key="aboutP1">My work sits between research and engineering. I enjoy understanding why an algorithm works, turning it into a reliable implementation, and then testing whether the assumptions still hold under realistic conditions.</p>
-          <p data-editable data-key="aboutP2">This portfolio is intentionally lightweight for now. The content will evolve as projects are refined, while the structure stays focused on evidence, decisions and outcomes rather than long descriptions.</p>
-        </div>
+    <div class="carousel-controls" aria-label="Project selector">
+      <button class="arrow" id="previous" type="button" aria-label="Previous project">←</button>
+      <div class="selectors">
+        <button class="selector active" type="button" data-select="0">1</button>
+        <button class="selector" type="button" data-select="1">2</button>
+        <button class="selector" type="button" data-select="2">3</button>
+        <button class="selector" type="button" data-select="3">4</button>
+        <button class="selector" type="button" data-select="4">5</button>
       </div>
-
-      <div class="skill-grid reveal">
-        <div class="skill-group"><p class="mini-label">RESEARCH</p><p data-editable data-key="skillsResearch">Gaussian Processes · Bayesian Inference · Sparse Modelling · Channel Estimation</p></div>
-        <div class="skill-group"><p class="mini-label">ENGINEERING</p><p data-editable data-key="skillsEngineering">MATLAB · Python · JavaScript · WebRTC · ONNX Runtime</p></div>
-        <div class="skill-group"><p class="mini-label">WORKING STYLE</p><p data-editable data-key="skillsStyle">Analytical · Iterative · Evidence-driven · Clear communication</p></div>
-      </div>
-    </section>
-
-    <section id="contact" class="contact-section section-shell">
-      <div class="contact-card reveal">
-        <p class="eyebrow">CONTACT</p>
-        <h2 data-editable data-key="contactHeading">Interested in research, engineering and machine-learning roles.</h2>
-        <p data-editable data-key="contactText">Replace this with your preferred email, LinkedIn and GitHub links when you are ready.</p>
-        <div class="contact-links">
-          <a href="#" data-editable data-key="contactEmail">your.email@example.com</a>
-          <a href="#" data-editable data-key="contactLinkedIn">LinkedIn</a>
-          <a href="#" data-editable data-key="contactGithub">GitHub</a>
-        </div>
-      </div>
-    </section>
+      <button class="arrow" id="next" type="button" aria-label="Next project">→</button>
+    </div>
   </main>
 
-  <footer class="site-footer section-shell">
-    <span>© <span id="year"></span> Yechen Wang</span>
-    <span>Designed as a living portfolio.</span>
+  <footer>
+    <span>Yechen Wang</span>
+    <span>Drag · scroll · arrow keys</span>
   </footer>
-
-  <div class="edit-panel" id="editPanel" aria-hidden="true">
-    <div>
-      <strong>Live edit mode</strong>
-      <span>Click any highlighted text and type. Changes save automatically in this browser.</span>
-    </div>
-    <div class="edit-panel-actions">
-      <button id="exportContent">Export content</button>
-      <button id="resetContent">Reset</button>
-      <button id="closeEditor">Done</button>
-    </div>
-  </div>
-
-  <div class="modal" id="projectModal" aria-hidden="true">
-    <div class="modal-backdrop" data-close-modal></div>
-    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <button class="modal-close" data-close-modal aria-label="Close">×</button>
-      <p class="eyebrow" id="modalKicker">CASE STUDY</p>
-      <h2 id="modalTitle">Project title</h2>
-      <p id="modalText">Project details.</p>
-      <div class="modal-note">This is a placeholder case-study panel. We can replace it later with a full project page, diagrams, figures, code links and results.</div>
-    </div>
-  </div>
 
   <script src="script.js"></script>
 </body>

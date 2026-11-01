@@ -85,7 +85,7 @@ function resetTilt(card, slow = false) {
   surface.style.setProperty('--shift-y', '0px');
 
   if (slow) {
-    window.setTimeout(() => card.classList.remove('tilt-reset'), 560);
+    window.setTimeout(() => card.classList.remove('tilt-reset'), 720);
   }
 }
 
@@ -147,99 +147,107 @@ cards.forEach((card, index) => {
 });
 
 let tiltFrame = null;
+let hoveredTiltCard = null;
 
-cards.forEach((card, index) => {
+function cardContainsPointer(card, x, y) {
   const surface = card.querySelector('.card-surface');
-  if (!surface) return;
+  if (!surface) return null;
 
-  card.addEventListener('pointermove', (event) => {
-    if (event.pointerType === 'touch' || isDragging) return;
+  const rect = surface.getBoundingClientRect();
+  const inside =
+    x >= rect.left &&
+    x <= rect.right &&
+    y >= rect.top &&
+    y <= rect.bottom;
 
-    const rect = surface.getBoundingClientRect();
-    const px = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
-    const py = Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height));
+  if (!inside) return null;
 
-    const depth = Math.abs(index - active);
-    const strength = depth === 0 ? 1 : depth === 1 ? 0.72 : 0.48;
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+  const normalizedDistance =
+    Math.abs(x - centerX) / Math.max(1, rect.width) +
+    Math.abs(y - centerY) / Math.max(1, rect.height);
 
-    const maxTiltX = 9 * strength;
-    const maxTiltY = 12 * strength;
-    const maxShiftX = 18 * strength;
-    const maxShiftY = 12 * strength;
+  return { card, surface, rect, normalizedDistance };
+}
 
-    const tiltY = (px - 0.5) * maxTiltY * 2;
-    const tiltX = (0.5 - py) * maxTiltX * 2;
-    const shiftX = (px - 0.5) * maxShiftX;
-    const shiftY = (py - 0.5) * maxShiftY;
+function findVisualCardAtPointer(x, y) {
+  const candidates = cards
+    .map((card) => cardContainsPointer(card, x, y))
+    .filter(Boolean);
 
-    if (tiltFrame) cancelAnimationFrame(tiltFrame);
-    tiltFrame = requestAnimationFrame(() => {
-      card.classList.remove('tilt-reset');
-      card.classList.add('pointer-tilt');
-      surface.style.setProperty('--tilt-x', tiltX.toFixed(2) + 'deg');
-      surface.style.setProperty('--tilt-y', tiltY.toFixed(2) + 'deg');
-      surface.style.setProperty('--pointer-x', (px * 100).toFixed(1) + '%');
-      surface.style.setProperty('--pointer-y', (py * 100).toFixed(1) + '%');
-      surface.style.setProperty('--shift-x', shiftX.toFixed(2) + 'px');
-      surface.style.setProperty('--shift-y', shiftY.toFixed(2) + 'px');
-    });
-  });
+  if (!candidates.length) return null;
 
-  card.addEventListener('pointerleave', () => {
-    if (isDragging) return;
-    if (tiltFrame) {
-      cancelAnimationFrame(tiltFrame);
-      tiltFrame = null;
-    }
-    resetTilt(card, true);
-  });
-});
+  // In overlap regions, follow the card whose visible face is closest
+  // to the pointer rather than relying on browser hit testing.
+  candidates.sort((a, b) => a.normalizedDistance - b.normalizedDistance);
+  return candidates[0];
+}
 
-function resetTiltedCards(slow = true) {
-  if (isDragging) return;
+function applyPointerTilt(card, surface, rect, clientX, clientY) {
+  const index = cards.indexOf(card);
+  if (index < 0) return;
 
-  if (tiltFrame) {
-    cancelAnimationFrame(tiltFrame);
-    tiltFrame = null;
-  }
+  const px = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+  const py = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
 
-  cards.forEach((card) => {
-    if (card.classList.contains('pointer-tilt')) {
-      resetTilt(card, slow);
-    }
+  const depth = Math.abs(index - active);
+  const strength = depth === 0 ? 1 : depth === 1 ? 0.82 : 0.62;
+
+  const maxTiltX = 9 * strength;
+  const maxTiltY = 12 * strength;
+  const maxShiftX = 18 * strength;
+  const maxShiftY = 12 * strength;
+
+  const tiltY = (px - 0.5) * maxTiltY * 2;
+  const tiltX = (0.5 - py) * maxTiltX * 2;
+  const shiftX = (px - 0.5) * maxShiftX;
+  const shiftY = (py - 0.5) * maxShiftY;
+
+  if (tiltFrame) cancelAnimationFrame(tiltFrame);
+  tiltFrame = requestAnimationFrame(() => {
+    card.classList.remove('tilt-reset');
+    card.classList.add('pointer-tilt');
+    surface.style.setProperty('--tilt-x', tiltX.toFixed(2) + 'deg');
+    surface.style.setProperty('--tilt-y', tiltY.toFixed(2) + 'deg');
+    surface.style.setProperty('--pointer-x', (px * 100).toFixed(1) + '%');
+    surface.style.setProperty('--pointer-y', (py * 100).toFixed(1) + '%');
+    surface.style.setProperty('--shift-x', shiftX.toFixed(2) + 'px');
+    surface.style.setProperty('--shift-y', shiftY.toFixed(2) + 'px');
   });
 }
 
-// A transformed card can move away from the cursor itself.
-// Check every currently tilted card against the live pointer position,
-// so side cards return naturally too.
+function resetHoveredTiltCard(slow = true) {
+  if (!hoveredTiltCard) return;
+  resetTilt(hoveredTiltCard, slow);
+  hoveredTiltCard = null;
+}
+
 carousel.addEventListener('pointermove', (event) => {
-  if (isDragging) return;
+  if (isDragging || event.pointerType === 'touch') return;
 
-  cards.forEach((card) => {
-    if (!card.classList.contains('pointer-tilt')) return;
+  const hit = findVisualCardAtPointer(event.clientX, event.clientY);
 
-    const surface = card.querySelector('.card-surface');
-    if (!surface) return;
+  if (!hit) {
+    resetHoveredTiltCard(true);
+    return;
+  }
 
-    const rect = surface.getBoundingClientRect();
-    const padding = 4;
-    const inside =
-      event.clientX >= rect.left - padding &&
-      event.clientX <= rect.right + padding &&
-      event.clientY >= rect.top - padding &&
-      event.clientY <= rect.bottom + padding;
+  if (hoveredTiltCard && hoveredTiltCard !== hit.card) {
+    resetTilt(hoveredTiltCard, true);
+  }
 
-    if (!inside) resetTilt(card, true);
-  });
+  hoveredTiltCard = hit.card;
+  applyPointerTilt(hit.card, hit.surface, hit.rect, event.clientX, event.clientY);
 });
 
 carousel.addEventListener('pointerleave', () => {
-  resetTiltedCards(true);
+  if (isDragging) return;
+  resetHoveredTiltCard(true);
 });
 
 window.addEventListener('blur', () => {
-  resetTiltedCards(true);
+  resetHoveredTiltCard(true);
 });
 
 carousel.addEventListener('keydown', (event) => {
@@ -291,7 +299,8 @@ carousel.addEventListener('pointerdown', (event) => {
   if (event.pointerType === 'mouse' && event.button !== 0) return;
 
   clearWheelMotion();
-  cards.forEach(resetTilt);
+  resetHoveredTiltCard(false);
+  cards.forEach((card) => resetTilt(card, false));
 
   pointerStart = event.clientX;
   dragStartX = event.clientX;

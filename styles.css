@@ -286,9 +286,9 @@ main {
     rotateY(var(--tilt-y))
     scale(1.015);
   transition:
-    transform 180ms cubic-bezier(.22,.61,.36,1),
-    box-shadow .28s ease,
-    border-color .28s ease;
+    transform 260ms cubic-bezier(.22,.61,.36,1),
+    box-shadow .32s ease,
+    border-color .32s ease;
   will-change: transform;
 }
 
@@ -331,15 +331,15 @@ main {
 
 .project-card.pointer-tilt:not(.active) .card-surface {
   box-shadow:
-    0 30px 66px rgba(74,61,44,.13),
-    inset 0 1px rgba(255,255,255,.82);
+    0 34px 74px rgba(74,61,44,.15),
+    inset 0 1px rgba(255,255,255,.84);
 }
 
 .project-card.tilt-reset .card-surface {
   transition:
-    transform 520ms cubic-bezier(.16,.72,.26,1),
-    box-shadow 420ms ease,
-    border-color .28s ease;
+    transform 680ms cubic-bezier(.16,.72,.26,1),
+    box-shadow 560ms ease,
+    border-color .32s ease;
 }
 
 .project-card:nth-child(1) { --accent: var(--blue); }

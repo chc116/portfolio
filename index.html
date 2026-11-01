@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-build="20261102-light-linear-v2">
+<html lang="en" data-build="20261102-smooth-spacing-v1">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -236,7 +236,7 @@ main {
 
 .stage {
   position: relative;
-  width: min(1240px, 100vw);
+  width: min(1540px, 100vw);
   height: 460px;
   transform-style: preserve-3d;
 }
@@ -261,9 +261,9 @@ main {
   cursor: pointer;
   transform-style: preserve-3d;
   transition:
-    transform .62s cubic-bezier(.2,.75,.2,1),
-    opacity .48s ease,
-    filter .48s ease,
+    transform .54s cubic-bezier(.18,.82,.24,1),
+    opacity .42s ease,
+    filter .42s ease,
     border-color .3s ease;
 }
 
@@ -575,7 +575,10 @@ const projectToggle = document.getElementById('projectToggle');
 
 let active = 0;
 let pointerStart = null;
-let wheelLocked = false;
+let wheelAccumulator = 0;
+let wheelQueue = 0;
+let wheelQueueTimer = null;
+let wheelResetTimer = null;
 
 function linearDistance(index, current) {
   return index - current;
@@ -583,7 +586,9 @@ function linearDistance(index, current) {
 
 function updateCarousel() {
   const total = cards.length;
-  const spacing = Math.min(window.innerWidth * 0.29, 350);
+  const spacing = window.innerWidth <= 760
+    ? Math.min(window.innerWidth * 0.76, 320)
+    : Math.min(window.innerWidth * 0.36, 500);
 
   cards.forEach((card, index) => {
     const distance = linearDistance(index, active);
@@ -625,39 +630,99 @@ function goPrevious() {
   if (active > 0) setProject(active - 1);
 }
 
-next.addEventListener('click', goNext);
-previous.addEventListener('click', goPrevious);
+function clearWheelMotion() {
+  wheelAccumulator = 0;
+  wheelQueue = 0;
+  if (wheelQueueTimer) {
+    clearTimeout(wheelQueueTimer);
+    wheelQueueTimer = null;
+  }
+  if (wheelResetTimer) {
+    clearTimeout(wheelResetTimer);
+    wheelResetTimer = null;
+  }
+}
+
+next.addEventListener('click', () => {
+  clearWheelMotion();
+  goNext();
+});
+
+previous.addEventListener('click', () => {
+  clearWheelMotion();
+  goPrevious();
+});
 
 selectors.forEach((selector) => {
-  selector.addEventListener('click', () => setProject(Number(selector.dataset.select)));
+  selector.addEventListener('click', () => {
+    clearWheelMotion();
+    setProject(Number(selector.dataset.select));
+  });
 });
 
 cards.forEach((card, index) => {
   card.addEventListener('click', () => {
+    clearWheelMotion();
     if (index !== active) setProject(index);
   });
 });
 
 carousel.addEventListener('keydown', (event) => {
+  clearWheelMotion();
   if (event.key === 'ArrowRight') goNext();
   if (event.key === 'ArrowLeft') goPrevious();
 });
 
+function processWheelQueue() {
+  if (wheelQueue === 0) {
+    wheelQueueTimer = null;
+    return;
+  }
+
+  const direction = Math.sign(wheelQueue);
+  const target = active + direction;
+
+  if (target >= 0 && target < cards.length) {
+    setProject(target);
+  }
+
+  wheelQueue -= direction;
+  wheelQueueTimer = window.setTimeout(processWheelQueue, 170);
+}
+
 carousel.addEventListener('wheel', (event) => {
-  if (wheelLocked || Math.abs(event.deltaY) < 8) return;
+  const delta = Math.abs(event.deltaY) >= Math.abs(event.deltaX)
+    ? event.deltaY
+    : event.deltaX;
 
-  const movingForward = event.deltaY > 0;
-  const atStart = active === 0;
-  const atEnd = active === cards.length - 1;
+  if (Math.abs(delta) < 4) return;
 
-  if ((movingForward && atEnd) || (!movingForward && atStart)) return;
+  wheelAccumulator += delta;
+  const threshold = 48;
 
-  wheelLocked = true;
-  movingForward ? goNext() : goPrevious();
-  window.setTimeout(() => { wheelLocked = false; }, 460);
+  while (Math.abs(wheelAccumulator) >= threshold) {
+    const direction = wheelAccumulator > 0 ? 1 : -1;
+    const queuedTarget = active + wheelQueue + direction;
+
+    if (queuedTarget >= 0 && queuedTarget < cards.length) {
+      wheelQueue += direction;
+    }
+
+    wheelAccumulator -= direction * threshold;
+  }
+
+  if (wheelQueue !== 0 && !wheelQueueTimer) {
+    processWheelQueue();
+  }
+
+  if (wheelResetTimer) clearTimeout(wheelResetTimer);
+  wheelResetTimer = window.setTimeout(() => {
+    wheelAccumulator = 0;
+  }, 120);
 }, { passive: true });
 
 carousel.addEventListener('pointerdown', (event) => {
+  clearWheelMotion();
   pointerStart = event.clientX;
   carousel.setPointerCapture?.(event.pointerId);
 });
@@ -678,6 +743,7 @@ projectToggle.addEventListener('click', (event) => {
 
 document.querySelectorAll('[data-project]').forEach((button) => {
   button.addEventListener('click', () => {
+    clearWheelMotion();
     setProject(Number(button.dataset.project));
     projectNav.classList.remove('open');
     projectToggle.setAttribute('aria-expanded', 'false');
@@ -739,4 +805,4 @@ updateCarousel();
 </body>
 </html>
 
-<!-- portfolio-build: 20261102-light-linear-v2 -->
+<!-- portfolio-build: 20261102-smooth-spacing-v1 -->

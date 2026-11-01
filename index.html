@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-build="20261102-light-linear-v1">
+<html lang="en" data-build="20261102-light-linear-v2">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -722,17 +722,9 @@ updateCarousel();
 
         if (!freshBuild || freshBuild === currentBuild) return;
 
-        const key = 'portfolio-auto-refresh-' + freshBuild;
-        if (sessionStorage.getItem(key)) return;
-        sessionStorage.setItem(key, '1');
-
         document.open();
         document.write(freshHtml);
         document.close();
-
-        if (window.location.search.includes('_check=')) {
-          history.replaceState(null, '', window.location.pathname + window.location.hash);
-        }
       } catch (_) {
         // Stay on the current page if the network check fails.
       }
@@ -747,4 +739,4 @@ updateCarousel();
 </body>
 </html>
 
-<!-- portfolio-build: 20261102-light-linear-v1 -->
+<!-- portfolio-build: 20261102-light-linear-v2 -->

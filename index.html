@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-build="20261102-smooth-spacing-v1">
+<html lang="en" data-build="20261102-live-wheel-v1">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -236,7 +236,7 @@ main {
 
 .stage {
   position: relative;
-  width: min(1540px, 100vw);
+  width: min(1880px, 100vw);
   height: 460px;
   transform-style: preserve-3d;
 }
@@ -261,10 +261,10 @@ main {
   cursor: pointer;
   transform-style: preserve-3d;
   transition:
-    transform .54s cubic-bezier(.18,.82,.24,1),
-    opacity .42s ease,
-    filter .42s ease,
-    border-color .3s ease;
+    transform var(--carousel-speed, 420ms) cubic-bezier(.18,.82,.24,1),
+    opacity var(--carousel-speed, 420ms) ease,
+    filter var(--carousel-speed, 420ms) ease,
+    border-color .24s ease;
 }
 
 .project-card::before {
@@ -576,9 +576,8 @@ const projectToggle = document.getElementById('projectToggle');
 let active = 0;
 let pointerStart = null;
 let wheelAccumulator = 0;
-let wheelQueue = 0;
-let wheelQueueTimer = null;
 let wheelResetTimer = null;
+let lastWheelAt = 0;
 
 function linearDistance(index, current) {
   return index - current;
@@ -587,8 +586,8 @@ function linearDistance(index, current) {
 function updateCarousel() {
   const total = cards.length;
   const spacing = window.innerWidth <= 760
-    ? Math.min(window.innerWidth * 0.76, 320)
-    : Math.min(window.innerWidth * 0.36, 500);
+    ? Math.min(window.innerWidth * 0.78, 330)
+    : Math.min(Math.max(window.innerWidth * 0.44, 600), 820);
 
   cards.forEach((card, index) => {
     const distance = linearDistance(index, active);
@@ -630,13 +629,15 @@ function goPrevious() {
   if (active > 0) setProject(active - 1);
 }
 
+function setCarouselSpeed(milliseconds) {
+  document.documentElement.style.setProperty('--carousel-speed', milliseconds + 'ms');
+}
+
 function clearWheelMotion() {
   wheelAccumulator = 0;
-  wheelQueue = 0;
-  if (wheelQueueTimer) {
-    clearTimeout(wheelQueueTimer);
-    wheelQueueTimer = null;
-  }
+  lastWheelAt = 0;
+  setCarouselSpeed(420);
+
   if (wheelResetTimer) {
     clearTimeout(wheelResetTimer);
     wheelResetTimer = null;
@@ -673,23 +674,6 @@ carousel.addEventListener('keydown', (event) => {
   if (event.key === 'ArrowLeft') goPrevious();
 });
 
-function processWheelQueue() {
-  if (wheelQueue === 0) {
-    wheelQueueTimer = null;
-    return;
-  }
-
-  const direction = Math.sign(wheelQueue);
-  const target = active + direction;
-
-  if (target >= 0 && target < cards.length) {
-    setProject(target);
-  }
-
-  wheelQueue -= direction;
-  wheelQueueTimer = window.setTimeout(processWheelQueue, 170);
-}
-
 carousel.addEventListener('wheel', (event) => {
   const delta = Math.abs(event.deltaY) >= Math.abs(event.deltaX)
     ? event.deltaY
@@ -697,29 +681,37 @@ carousel.addEventListener('wheel', (event) => {
 
   if (Math.abs(delta) < 4) return;
 
+  event.preventDefault();
+
+  const now = performance.now();
+  const rapidInput = lastWheelAt > 0 && (now - lastWheelAt) < 170;
+  lastWheelAt = now;
+
+  // A single wheel notch stays deliberate; sustained wheel input becomes fast.
+  setCarouselSpeed(rapidInput ? 135 : 340);
+
   wheelAccumulator += delta;
-  const threshold = 48;
+  const threshold = 82;
 
-  while (Math.abs(wheelAccumulator) >= threshold) {
+  let steps = 0;
+  while (Math.abs(wheelAccumulator) >= threshold && Math.abs(steps) < 3) {
     const direction = wheelAccumulator > 0 ? 1 : -1;
-    const queuedTarget = active + wheelQueue + direction;
-
-    if (queuedTarget >= 0 && queuedTarget < cards.length) {
-      wheelQueue += direction;
-    }
-
+    steps += direction;
     wheelAccumulator -= direction * threshold;
   }
 
-  if (wheelQueue !== 0 && !wheelQueueTimer) {
-    processWheelQueue();
+  if (steps !== 0) {
+    const target = Math.max(0, Math.min(cards.length - 1, active + steps));
+    if (target !== active) setProject(target);
   }
 
   if (wheelResetTimer) clearTimeout(wheelResetTimer);
   wheelResetTimer = window.setTimeout(() => {
     wheelAccumulator = 0;
-  }, 120);
-}, { passive: true });
+    lastWheelAt = 0;
+    setCarouselSpeed(420);
+  }, 150);
+}, { passive: false });
 
 carousel.addEventListener('pointerdown', (event) => {
   clearWheelMotion();
@@ -805,4 +797,4 @@ updateCarousel();
 </body>
 </html>
 
-<!-- portfolio-build: 20261102-smooth-spacing-v1 -->
+<!-- portfolio-build: 20261102-live-wheel-v1 -->

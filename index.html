@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-build="20261102-automatic-refresh-v1">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -667,7 +667,51 @@ window.addEventListener('resize', updateCarousel);
 updateCarousel();
 
   </script>
+
+  <script>
+  (() => {
+    const currentBuild = document.documentElement.dataset.build || '';
+    const checkForUpdate = async () => {
+      try {
+        const url = new URL('index.html', window.location.href);
+        url.searchParams.set('_check', Date.now().toString());
+
+        const response = await fetch(url.toString(), {
+          cache: 'no-store',
+          headers: { 'Cache-Control': 'no-cache' }
+        });
+
+        if (!response.ok) return;
+
+        const freshHtml = await response.text();
+        const match = freshHtml.match(/<html[^>]*data-build=["']([^"']+)["']/i);
+        const freshBuild = match ? match[1] : '';
+
+        if (!freshBuild || freshBuild === currentBuild) return;
+
+        const key = 'portfolio-auto-refresh-' + freshBuild;
+        if (sessionStorage.getItem(key)) return;
+        sessionStorage.setItem(key, '1');
+
+        document.open();
+        document.write(freshHtml);
+        document.close();
+
+        if (window.location.search.includes('_check=')) {
+          history.replaceState(null, '', window.location.pathname + window.location.hash);
+        }
+      } catch (_) {
+        // Stay on the current page if the network check fails.
+      }
+    };
+
+    window.addEventListener('load', () => {
+      setTimeout(checkForUpdate, 250);
+    });
+  })();
+  </script>
+
 </body>
 </html>
 
-<!-- portfolio-build: single-file-v1 -->
+<!-- portfolio-build: 20261102-automatic-refresh-v1 -->

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-build="20261102-light-warm-v1">
+<html lang="en" data-build="20261102-light-linear-v1">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -403,6 +403,17 @@ main {
   transform: scale(1.04);
 }
 
+.arrow:disabled {
+  opacity: .28;
+  cursor: default;
+  transform: none;
+}
+
+.arrow:disabled:hover {
+  color: #7b828c;
+  background: rgba(251,248,243,.92);
+}
+
 .selectors {
   display: flex;
   gap: 11px;
@@ -566,11 +577,8 @@ let active = 0;
 let pointerStart = null;
 let wheelLocked = false;
 
-function circularDistance(index, current, total) {
-  let distance = index - current;
-  if (distance > total / 2) distance -= total;
-  if (distance < -total / 2) distance += total;
-  return distance;
+function linearDistance(index, current) {
+  return index - current;
 }
 
 function updateCarousel() {
@@ -578,7 +586,7 @@ function updateCarousel() {
   const spacing = Math.min(window.innerWidth * 0.29, 350);
 
   cards.forEach((card, index) => {
-    const distance = circularDistance(index, active, total);
+    const distance = linearDistance(index, active);
     const depth = Math.abs(distance);
 
     let x = distance * spacing;
@@ -599,15 +607,23 @@ function updateCarousel() {
   selectors.forEach((selector, index) => {
     selector.classList.toggle('active', index === active);
   });
+
+  previous.disabled = active === 0;
+  next.disabled = active === cards.length - 1;
 }
 
 function setProject(index) {
-  active = (index + cards.length) % cards.length;
+  active = Math.max(0, Math.min(cards.length - 1, index));
   updateCarousel();
 }
 
-function goNext() { setProject(active + 1); }
-function goPrevious() { setProject(active - 1); }
+function goNext() {
+  if (active < cards.length - 1) setProject(active + 1);
+}
+
+function goPrevious() {
+  if (active > 0) setProject(active - 1);
+}
 
 next.addEventListener('click', goNext);
 previous.addEventListener('click', goPrevious);
@@ -629,8 +645,15 @@ carousel.addEventListener('keydown', (event) => {
 
 carousel.addEventListener('wheel', (event) => {
   if (wheelLocked || Math.abs(event.deltaY) < 8) return;
+
+  const movingForward = event.deltaY > 0;
+  const atStart = active === 0;
+  const atEnd = active === cards.length - 1;
+
+  if ((movingForward && atEnd) || (!movingForward && atStart)) return;
+
   wheelLocked = true;
-  event.deltaY > 0 ? goNext() : goPrevious();
+  movingForward ? goNext() : goPrevious();
   window.setTimeout(() => { wheelLocked = false; }, 460);
 }, { passive: true });
 
@@ -724,4 +747,4 @@ updateCarousel();
 </body>
 </html>
 
-<!-- portfolio-build: 20261102-light-warm-v1 -->
+<!-- portfolio-build: 20261102-light-linear-v1 -->

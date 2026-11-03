@@ -247,8 +247,8 @@ main {
 .project-card {
   --accent: var(--blue);
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: 0;
+  left: 0;
   width: min(588px, 82vw);
   height: 500px;
   cursor: pointer;
@@ -346,9 +346,8 @@ main {
 
 .project-card.tilt-reset .card-surface {
   transition:
-    transform 680ms cubic-bezier(.16,.72,.26,1),
-    box-shadow 560ms ease,
-    border-color .32s ease;
+    box-shadow 260ms ease,
+    border-color .24s ease;
 }
 
 .project-card:nth-child(1) { --accent: var(--blue); }
@@ -358,8 +357,8 @@ main {
 .project-card:nth-child(5) { --accent: var(--steel); }
 
 .project-card--cover {
-  width: min(875px, 90vw);
-  height: 625px;
+  width: min(876px, 90vw);
+  height: 624px;
 }
 
 .project-card--cover .card-surface {
@@ -511,11 +510,13 @@ main {
 .image-preview-shell {
   position: relative;
   z-index: 1;
-  width: min(94vw, 1500px);
+  width: min(95vw, 1580px);
   height: min(88vh, 900px);
   display: grid;
-  place-items: center;
-  transform: scale(.94) translateY(12px);
+  grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(28px, 4vw, 64px);
+  transform: translateY(12px);
   opacity: 0;
   transition:
     transform 380ms cubic-bezier(.2,.75,.25,1),
@@ -523,8 +524,52 @@ main {
 }
 
 .image-preview.open .image-preview-shell {
-  transform: scale(1) translateY(0);
+  transform: translateY(0);
   opacity: 1;
+}
+
+.image-preview-info {
+  align-self: center;
+  padding-left: clamp(8px, 2vw, 28px);
+  color: #20262f;
+}
+
+.preview-kicker {
+  display: block;
+  margin-bottom: 15px;
+  color: #626a75;
+  font-size: 12px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.image-preview-info h2 {
+  margin: 0;
+  font-size: clamp(30px, 3.2vw, 52px);
+  line-height: 1.02;
+  font-weight: 600;
+  letter-spacing: -.02em;
+}
+
+.image-preview-info p {
+  margin: 18px 0 0;
+  color: #59616c;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.image-preview-info time {
+  display: block;
+  margin-top: 28px;
+  color: #343c47;
+  font-size: 13px;
+}
+
+.image-preview-media {
+  min-width: 0;
+  height: 100%;
+  display: grid;
+  place-items: center;
 }
 
 .image-preview-shell img {
@@ -534,16 +579,16 @@ main {
   height: auto;
   object-fit: contain;
   border-radius: 20px;
-  background: rgba(255,255,255,.94);
+  background: rgba(255,255,255,.97);
   box-shadow:
-    0 40px 110px rgba(44,50,58,.24),
-    0 4px 20px rgba(44,50,58,.08);
+    0 34px 90px rgba(44,50,58,.20),
+    0 4px 18px rgba(44,50,58,.07);
 }
 
 .image-preview-close {
   position: absolute;
-  top: -10px;
-  right: -4px;
+  top: 0;
+  right: 0;
   z-index: 2;
   width: 42px;
   height: 42px;
@@ -610,27 +655,84 @@ body.preview-open {
   background: rgba(251,248,243,.92);
 }
 
-.selectors {
-  display: flex;
-  gap: 11px;
-  align-items: center;
+.selectors.timeline {
+  --timeline-progress: 0;
+  position: relative;
+  width: min(760px, 66vw);
+  height: 58px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  align-items: start;
+  gap: 0;
+  padding-top: 3px;
+}
+
+.selectors.timeline::before,
+.selectors.timeline::after {
+  content: "";
+  position: absolute;
+  left: 7%;
+  top: 11px;
+  height: 1px;
+  border-radius: 999px;
+}
+
+.selectors.timeline::before {
+  right: 7%;
+  background: rgba(49,55,66,.18);
+}
+
+.selectors.timeline::after {
+  width: calc(86% * var(--timeline-progress) / 100);
+  background: #414a57;
+  transition: width var(--carousel-speed, 420ms) cubic-bezier(.18,.82,.24,1);
 }
 
 .selector {
-  width: 26px;
-  height: 26px;
+  position: relative;
+  z-index: 2;
+  min-width: 0;
+  height: 52px;
   padding: 0;
   border: 0;
   background: transparent;
   color: var(--faint);
-  font-size: 11px;
   cursor: pointer;
-  transition: .2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  transition: color .24s ease;
+}
+
+.timeline-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 1.5px solid #8f969f;
+  box-shadow: 0 0 0 4px var(--bg);
+  transition: transform .24s ease, background .24s ease, border-color .24s ease;
+}
+
+.timeline-date {
+  font-size: 11px;
+  line-height: 1.1;
+  white-space: nowrap;
 }
 
 .selector.active {
-  color: #30363e;
-  transform: scale(1.12);
+  color: #20262f;
+}
+
+.selector.active .timeline-dot {
+  background: #303946;
+  border-color: #303946;
+  transform: scale(1.18);
+}
+
+.selector:hover {
+  color: #303946;
 }
 
 footer {
@@ -684,6 +786,21 @@ footer {
   .image-preview-shell {
     width: 96vw;
     height: 88vh;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 18px;
+  }
+  .image-preview-info {
+    padding: 0 42px 0 4px;
+  }
+  .image-preview-info h2 {
+    font-size: 27px;
+  }
+  .selectors.timeline {
+    width: min(92vw, 620px);
+  }
+  .timeline-date {
+    font-size: 9px;
   }
   .image-preview-close {
     top: 4px;

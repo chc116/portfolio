@@ -630,12 +630,12 @@ body.preview-open {
 .carousel-controls {
   position: relative;
   z-index: 20;
-  width: min(1120px, 90vw);
+  width: min(1540px, 96vw);
   margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 22px;
+  gap: 18px;
 }
 
 .arrow {
@@ -670,15 +670,16 @@ body.preview-open {
 
 .timeline-overview {
   position: relative;
-  width: min(940px, 76vw);
+  width: auto;
   height: 72px;
-  flex: 0 1 auto;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .timeline-axis {
   position: absolute;
-  left: 7%;
-  right: 7%;
+  left: 3.5%;
+  right: 3.5%;
   top: 19px;
   height: 1px;
   background: rgba(49,55,66,.18);
@@ -751,17 +752,6 @@ body.preview-open {
 .timeline-now { left: 7%; transform: translateX(-50%); }
 .timeline-oldest { right: 7%; transform: translateX(50%); }
 
-footer {
-  position: fixed;
-  left: 5vw;
-  right: 5vw;
-  bottom: 10px;
-  display: flex;
-  justify-content: space-between;
-  color: #8a908f;
-  font-size: 10px;
-  letter-spacing: .035em;
-}
 
 @media (max-width: 760px) {
   body {
@@ -834,9 +824,14 @@ footer {
   .image-preview-info h2 {
     font-size: 27px;
   }
+  .carousel-controls {
+    width: 96vw;
+    gap: 10px;
+  }
   .timeline-overview {
-    width: min(82vw, 620px);
+    width: auto;
     height: 68px;
+    flex: 1 1 auto;
   }
   .timeline-boundary b {
     font-size: 9px;
@@ -850,7 +845,6 @@ footer {
   .ring::before { inset: 20px; }
   .ring::after { inset: 42px; }
   .dot { top: 44px; }
-  footer { display: none; }
 }
 
 @media (max-width: 520px) {

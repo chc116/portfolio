@@ -21,6 +21,11 @@ const projectNav = document.getElementById('projectNav');
 const projectToggle = document.getElementById('projectToggle');
 const imagePreview = document.getElementById('imagePreview');
 const imagePreviewClose = document.getElementById('imagePreviewClose');
+const imagePreviewImage = document.getElementById('imagePreviewImage');
+const previewTitle = document.getElementById('previewTitle');
+const previewKeywords = document.getElementById('previewKeywords');
+const previewCategory = document.getElementById('previewCategory');
+const previewTime = document.getElementById('previewTime');
 
 let active = 0;
 let pointerStart = null;
@@ -37,7 +42,6 @@ let wheelAccumulator = 0;
 let wheelResetTimer = null;
 let lastWheelAt = 0;
 let carouselSpeed = 300;
-let lastWheelStepAt = 0;
 
 function linearDistance(index, current) {
   return index - current;
@@ -103,6 +107,11 @@ function updateTimelineRange(index) {
   timelineStartLabel.textContent = period.start;
 
   timelineOverview.classList.toggle('compact-range', width < 11);
+
+  timelineEndMarker.classList.toggle('near-left', endPct < 12);
+  timelineEndMarker.classList.toggle('near-right', endPct > 88);
+  timelineStartMarker.classList.toggle('near-left', startPct < 12);
+  timelineStartMarker.classList.toggle('near-right', startPct > 88);
 }
 
 function updateCarousel() {
@@ -148,8 +157,28 @@ function setCarouselSpeed(milliseconds) {
   document.documentElement.style.setProperty('--carousel-speed', milliseconds + 'ms');
 }
 
-function openImagePreview() {
+function openProjectPreview(index = active) {
   if (!imagePreview) return;
+
+  const card = cards[index];
+  if (!card) return;
+
+  previewTitle.textContent = card.dataset.title || '';
+  previewKeywords.textContent = card.dataset.keywords || '';
+  previewCategory.textContent = card.dataset.category || '';
+  previewTime.textContent = card.dataset.period || '';
+
+  const isImage = card.dataset.preview === 'image';
+  imagePreview.classList.toggle('graphic-mode', !isImage);
+
+  if (isImage && imagePreviewImage) {
+    const source = card.querySelector('.visual-cover img');
+    if (source) {
+      imagePreviewImage.src = source.src;
+      imagePreviewImage.alt = (card.dataset.title || 'Project') + ' preview';
+    }
+  }
+
   imagePreview.classList.add('open');
   imagePreview.setAttribute('aria-hidden', 'false');
   document.body.classList.add('preview-open');
@@ -165,7 +194,6 @@ function closeImagePreview() {
 function clearWheelMotion() {
   wheelAccumulator = 0;
   lastWheelAt = 0;
-  lastWheelStepAt = 0;
   setCarouselSpeed(300);
 
   if (wheelResetTimer) {
@@ -183,6 +211,46 @@ previous.addEventListener('click', () => {
   clearWheelMotion();
   goPrevious();
 });
+
+function cardContainsPointer(card, x, y) {
+  const surface = card.querySelector('.card-surface');
+  if (!surface) return null;
+
+  const rect = surface.getBoundingClientRect();
+  const inside =
+    x >= rect.left &&
+    x <= rect.right &&
+    y >= rect.top &&
+    y <= rect.bottom;
+
+  if (!inside) return null;
+
+  const centerX = rect.left + rect.width / 2;
+  const centerDistance = Math.abs(x - centerX);
+  const opacity = Number.parseFloat(card.style.opacity || '1');
+
+  return { card, rect, centerDistance, opacity };
+}
+
+function findVisualCardAtPointer(x, y) {
+  const candidates = cards
+    .map((card, index) => {
+      const hit = cardContainsPointer(card, x, y);
+      if (!hit || hit.opacity < 0.08) return null;
+      return { ...hit, index };
+    })
+    .filter(Boolean);
+
+  if (!candidates.length) return null;
+
+  candidates.sort((a, b) => {
+    const distanceDiff = a.centerDistance - b.centerDistance;
+    if (Math.abs(distanceDiff) > 1) return distanceDiff;
+    return b.opacity - a.opacity;
+  });
+
+  return candidates[0];
+}
 
 let hoveredCard = null;
 let pressedCard = null;
@@ -213,7 +281,10 @@ carousel.addEventListener('pointermove', (event) => {
   hoveredCard?.classList.add('hovered');
 });
 
-carousel.addEventListener('pointerleave', clearHoveredCard);
+carousel.addEventListener('pointerleave', () => {
+  clearHoveredCard();
+  clearPressedCard();
+});
 window.addEventListener('blur', clearHoveredCard);
 
 carousel.addEventListener('keydown', (event) => {
@@ -236,13 +307,19 @@ carousel.addEventListener('wheel', (event) => {
   lastWheelAt = now;
 
   wheelAccumulator += delta;
-  const threshold = rapid ? 58 : 78;
+  const threshold = rapid ? 46 : 72;
 
   let steps = 0;
   while (Math.abs(wheelAccumulator) >= threshold && Math.abs(steps) < 3) {
     const direction = wheelAccumulator > 0 ? 1 : -1;
     steps += direction;
     wheelAccumulator -= direction * threshold;
+  }
+
+  if (steps === 0 && Math.abs(delta) >= 110) {
+    const direction = delta > 0 ? 1 : -1;
+    steps = direction * Math.min(3, Math.max(1, Math.round(Math.abs(delta) / 110)));
+    wheelAccumulator = 0;
   }
 
   if (steps !== 0) {
@@ -257,8 +334,8 @@ carousel.addEventListener('wheel', (event) => {
   wheelResetTimer = window.setTimeout(() => {
     wheelAccumulator = 0;
     lastWheelAt = 0;
-    setCarouselSpeed(240);
-  }, 140);
+    setCarouselSpeed(300);
+  }, 130);
 }, { passive: false });
 
 carousel.addEventListener('pointerdown', (event) => {
@@ -337,8 +414,8 @@ function finishPointerInteraction(event) {
     suppressClick = false;
 
     if (clickedIndex !== null && clickedIndex !== undefined) {
-      if (clickedIndex === active && cards[clickedIndex]?.classList.contains('project-card--cover')) {
-        openImagePreview();
+      if (clickedIndex === active) {
+        openProjectPreview(clickedIndex);
       } else {
         setCarouselSpeed(260);
         setProject(clickedIndex);
@@ -457,4 +534,4 @@ window.addEventListener('resize', () => {
   updateCarousel();
 });
 
-updateCarousel(true);
+updateCarousel();

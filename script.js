@@ -163,6 +163,11 @@ function openProjectPreview(index = active) {
   const card = cards[index];
   if (!card) return;
 
+  if (index !== active) {
+    active = index;
+    updateCarousel();
+  }
+
   previewTitle.textContent = card.dataset.title || '';
   previewKeywords.textContent = card.dataset.keywords || '';
   previewCategory.textContent = card.dataset.category || '';
@@ -414,13 +419,7 @@ function finishPointerInteraction(event) {
     suppressClick = false;
 
     if (clickedIndex !== null && clickedIndex !== undefined) {
-      if (clickedIndex === active) {
-        openProjectPreview(clickedIndex);
-      } else {
-        setCarouselSpeed(260);
-        setProject(clickedIndex);
-        window.setTimeout(() => setCarouselSpeed(300), 280);
-      }
+      openProjectPreview(clickedIndex);
     }
 
     try {

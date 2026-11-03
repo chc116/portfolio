@@ -38,7 +38,6 @@ let wheelResetTimer = null;
 let lastWheelAt = 0;
 let carouselSpeed = 420;
 let lastWheelStepAt = 0;
-const tiltResetTimers = new WeakMap();
 
 function linearDistance(index, current) {
   return index - current;
@@ -78,10 +77,6 @@ function getCardLayout(index) {
     left,
     top
   };
-}
-
-function prepareCarouselMotion() {
-  
 }
 
 function updateTimelineRange(index) {
@@ -292,7 +287,6 @@ carousel.addEventListener('pointermove', (event) => {
 
     isDragging = true;
     dragMoved = true;
-    prepareCarouselMotion();
     setCarouselSpeed(0);
     carousel.classList.add('dragging');
   }

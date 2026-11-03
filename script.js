@@ -485,8 +485,8 @@ carousel.addEventListener('wheel', (event) => {
     wheelAccumulator = 0;
     lastWheelAt = 0;
     lastWheelStepAt = 0;
-    settleAfterMotion();
-    window.setTimeout(() => setCarouselSpeed(420), 40);
+    settleActiveCard();
+    setCarouselSpeed(420);
   }, 360);
 }, { passive: false });
 

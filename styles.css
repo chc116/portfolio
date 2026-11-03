@@ -248,12 +248,12 @@ main {
   top: 0;
   left: 0;
   width: min(588px, 82vw);
-  height: 500px;
+  height: 540px;
   cursor: pointer;
   pointer-events: none; /* carousel owns interaction */
   transition:
     left var(--carousel-speed, 300ms) cubic-bezier(.2,.75,.25,1),
-    opacity min(var(--carousel-speed, 300ms), 220ms) ease;
+    opacity 200ms ease;
 }
 
 .card-surface {
@@ -313,11 +313,11 @@ main {
 }
 
 .project-card.hovered .card-surface {
-  transform: translateY(-5px) scale(1.006);
-  border-color: rgba(49,55,66,.30);
+  transform: translateY(-7px) scale(1.008);
+  border-color: rgba(49,55,66,.34);
   box-shadow:
-    0 38px 88px rgba(74,61,44,.18),
-    0 8px 22px rgba(74,61,44,.08),
+    0 42px 96px rgba(74,61,44,.21),
+    0 10px 26px rgba(74,61,44,.10),
     inset 0 1px rgba(255,255,255,.86);
 }
 
@@ -443,7 +443,7 @@ main {
 .visual {
   position: relative;
   z-index: 2;
-  height: 338px;
+  height: 322px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -826,4 +826,69 @@ footer {
   .project-toggle { font-size: 12px; }
   .main-nav { gap: 14px; }
   .project-card { width: 82vw; }
+}
+
+.timeline-boundary.near-left b {
+  left: 0;
+  transform: none;
+}
+.timeline-boundary.near-right b {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+.timeline-overview {
+  overflow: visible;
+  padding-inline: 6px;
+}
+
+/* Dynamic project preview for cards without a real cover image yet */
+.image-preview-graphic {
+  display: none;
+  position: relative;
+  width: min(72vh, 680px);
+  aspect-ratio: 1.18;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(122,144,186,.16), transparent 45%),
+    linear-gradient(145deg, rgba(255,255,255,.92), rgba(245,241,235,.86));
+  border: 1px solid rgba(49,55,66,.10);
+  box-shadow: 0 34px 90px rgba(44,50,58,.16);
+}
+.image-preview.graphic-mode .image-preview-shell img {
+  display: none;
+}
+.image-preview.graphic-mode .image-preview-graphic {
+  display: grid;
+  place-items: center;
+}
+.preview-ring {
+  width: 230px;
+  height: 230px;
+  border: 1px solid rgba(122,144,186,.34);
+  border-radius: 50%;
+  transform: scaleY(.52) rotate(-12deg);
+  box-shadow: inset 0 0 42px rgba(122,144,186,.08);
+}
+.preview-ring::before,
+.preview-ring::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(122,144,186,.18);
+}
+.preview-ring::before { inset: 38px; }
+.preview-ring::after {
+  inset: 82px;
+  background: rgba(122,144,186,.13);
+}
+.preview-dot {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  top: 29%;
+  left: calc(50% - 4px);
+  border-radius: 50%;
+  background: #7187b1;
+  box-shadow: 0 0 20px rgba(113,135,177,.42);
 }

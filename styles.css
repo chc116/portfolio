@@ -253,8 +253,6 @@ main {
   pointer-events: none; /* carousel owns interaction */
   transform-style: preserve-3d;
   transition:
-    left var(--carousel-speed, 420ms) cubic-bezier(.18,.82,.24,1),
-    top var(--carousel-speed, 420ms) cubic-bezier(.18,.82,.24,1),
     transform var(--carousel-speed, 420ms) cubic-bezier(.18,.82,.24,1),
     opacity var(--carousel-speed, 420ms) ease,
     filter var(--carousel-speed, 420ms) ease;
@@ -318,6 +316,11 @@ main {
   background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 45%, transparent), transparent);
   opacity: .45;
   pointer-events: none;
+}
+
+.project-card.motion-prep,
+.project-card.native-snap {
+  transition: none !important;
 }
 
 .project-card.active {

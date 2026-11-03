@@ -56,11 +56,16 @@ function updateCarousel() {
     const rotateY = distance * -19;
     const scale = 1 - depth * 0.105;
 
-    card.style.transform =
-      `translate(-50%, -50%)
-       translate3d(${x}px, 0, ${z}px)
-       rotateY(${rotateY}deg)
-       scale(${scale})`;
+    if (depth === 0) {
+      card.style.transform =
+        `translate(-50%, -50%) translateX(${x}px)`;
+    } else {
+      card.style.transform =
+        `translate(-50%, -50%)
+         translate3d(${x}px, 0, ${z}px)
+         rotateY(${rotateY}deg)
+         scale(${scale})`;
+    }
     card.style.zIndex = String(20 - depth);
     card.style.opacity = depth === 0 ? '1' : depth === 1 ? '.72' : depth === 2 ? '.28' : '.10';
     card.style.filter = depth === 0 ? 'none' : `brightness(${Math.max(.82, 1 - depth * .09)}) saturate(${Math.max(.82, 1 - depth * .08)})`;

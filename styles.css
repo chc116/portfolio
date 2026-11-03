@@ -38,9 +38,9 @@ a { color: inherit; text-decoration: none; }
   pointer-events: none;
   overflow: hidden;
   background:
-    radial-gradient(circle at 14% 18%, rgba(122,144,186,.16), transparent 27%),
-    radial-gradient(circle at 84% 20%, rgba(147,136,181,.10), transparent 24%),
-    radial-gradient(circle at 80% 82%, rgba(177,135,103,.10), transparent 27%),
+    radial-gradient(circle at 14% 18%, rgba(122,144,186,.10), transparent 25%),
+    radial-gradient(circle at 84% 20%, rgba(147,136,181,.065), transparent 23%),
+    radial-gradient(circle at 80% 82%, rgba(177,135,103,.06), transparent 25%),
     linear-gradient(180deg, #f3f0ea 0%, #efeae3 100%);
 }
 
@@ -53,7 +53,7 @@ a { color: inherit; text-decoration: none; }
   top: 48%;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(122,144,186,.08), transparent 67%);
+  background: radial-gradient(circle, rgba(122,144,186,.045), transparent 64%);
 }
 
 .ambient::after {
@@ -282,16 +282,14 @@ main {
   overflow: hidden;
   transform-style: preserve-3d;
   transform:
-    perspective(900px)
-    translate3d(var(--shift-x), var(--shift-y), 18px)
+    translate(var(--shift-x), var(--shift-y))
     rotateX(var(--tilt-x))
-    rotateY(var(--tilt-y))
-    scale(1.015);
+    rotateY(var(--tilt-y));
   transition:
     transform 260ms cubic-bezier(.22,.61,.36,1),
     box-shadow .32s ease,
     border-color .32s ease;
-  will-change: transform;
+  will-change: auto;
 }
 
 .card-surface::before {
@@ -323,6 +321,14 @@ main {
 
 .project-card.active .card-surface {
   border-color: var(--line-strong);
+}
+
+.project-card.active:not(.pointer-tilt) .card-surface {
+  transform: none;
+}
+
+.project-card.pointer-tilt .card-surface {
+  will-change: transform;
 }
 
 .project-card.active.pointer-tilt .card-surface {
@@ -377,8 +383,8 @@ main {
   border-radius: 15px;
   overflow: hidden;
   border: 1px solid rgba(49,55,66,.08);
-  background: #eef3f7;
-  box-shadow: 0 12px 30px rgba(67,79,91,.10);
+  background: #f7fbff;
+  box-shadow: 0 10px 24px rgba(67,79,91,.075);
 }
 
 .project-card--cover .visual-cover img {

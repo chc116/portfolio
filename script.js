@@ -30,7 +30,7 @@ function linearDistance(index, current) {
 function getCardSpacing() {
   return window.innerWidth <= 760
     ? Math.min(window.innerWidth * 0.78, 330)
-    : Math.min(Math.max(window.innerWidth * 0.36, 520), 640);
+    : Math.min(Math.max(window.innerWidth * 0.45, 650), 800);
 }
 
 function updateCarousel() {

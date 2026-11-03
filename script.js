@@ -10,7 +10,7 @@ const projectToggle = document.getElementById('projectToggle');
 const imagePreview = document.getElementById('imagePreview');
 const imagePreviewClose = document.getElementById('imagePreviewClose');
 
-let active = cards.length - 1;
+let active = 0;
 let pointerStart = null;
 let dragOffset = 0;
 let dragStartX = 0;
@@ -63,12 +63,14 @@ function updateCarousel() {
     const cardLeft = Math.round(centerX - card.offsetWidth / 2 + x);
     const cardTop = Math.round(centerY - card.offsetHeight / 2);
 
+    card.style.left = cardLeft + 'px';
+    card.style.top = cardTop + 'px';
+
     if (depth === 0) {
-      card.style.transform =
-        `translate(${cardLeft}px, ${cardTop}px)`;
+      card.style.transform = 'none';
     } else {
       card.style.transform =
-        `translate3d(${cardLeft}px, ${cardTop}px, ${z}px)
+        `translateZ(${z}px)
          rotateY(${rotateY}deg)
          scale(${scale})`;
     }

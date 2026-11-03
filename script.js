@@ -1,8 +1,16 @@
 const cards = [...document.querySelectorAll('.project-card')];
-const selectors = [...document.querySelectorAll('.selector')];
 const carousel = document.getElementById('carousel');
 const stage = carousel.querySelector('.stage');
-const selectorTrack = document.querySelector('.selectors');
+const timelineRange = document.getElementById('timelineRange');
+const timelineTicks = [...document.querySelectorAll('.timeline-tick')];
+
+const projectRanges = [
+  [0, 1], // Present to Mar. 2024
+  [3, 4], // Apr. 2023 to Jan. 2023
+  [2, 6], // Jun. 2023 to Jul. 2022
+  [5, 8], // Sept. 2022 to Feb. 2022
+  [7, 9]  // Jun. 2022 to Jan. 2022
+];
 const previous = document.getElementById('previous');
 const next = document.getElementById('next');
 const projectNav = document.getElementById('projectNav');
@@ -116,6 +124,28 @@ function prepareCarouselMotion() {
   cards.forEach((card) => card.classList.remove('motion-prep'));
 }
 
+function updateTimelineRange(index) {
+  if (!timelineRange || !timelineTicks.length) return;
+
+  const range = projectRanges[index] || [0, 0];
+  const leftIndex = Math.min(range[0], range[1]);
+  const rightIndex = Math.max(range[0], range[1]);
+  const denominator = Math.max(1, timelineTicks.length - 1);
+
+  const left = (leftIndex / denominator) * 100;
+  const width = ((rightIndex - leftIndex) / denominator) * 100;
+
+  timelineRange.style.left = left.toFixed(3) + '%';
+  timelineRange.style.width = Math.max(width, 1.2).toFixed(3) + '%';
+
+  timelineTicks.forEach((tick, tickIndex) => {
+    const inRange = tickIndex >= leftIndex && tickIndex <= rightIndex;
+    const isEdge = tickIndex === leftIndex || tickIndex === rightIndex;
+    tick.classList.toggle('in-range', inRange);
+    tick.classList.toggle('range-edge', isEdge);
+  });
+}
+
 function updateCarousel(nativeActive = false) {
   cards.forEach((card, index) => {
     const layout = getCardLayout(index);
@@ -141,14 +171,7 @@ function updateCarousel(nativeActive = false) {
     card.classList.toggle('active', index === active);
   });
 
-  selectors.forEach((selector, index) => {
-    selector.classList.toggle('active', index === active);
-  });
-
-  if (selectorTrack) {
-    const progress = cards.length > 1 ? (active / (cards.length - 1)) * 100 : 0;
-    selectorTrack.style.setProperty('--timeline-progress', progress.toFixed(2));
-  }
+  updateTimelineRange(active);
 
   previous.disabled = active === 0;
   next.disabled = active === cards.length - 1;
@@ -167,7 +190,10 @@ function resetTilt(card, slow = false) {
   surface.style.setProperty('--shift-y', '0px');
 
   if (slow) {
-    window.setTimeout(() => card.classList.remove('tilt-reset'), 720);
+    window.setTimeout(() => {
+      card.classList.remove('tilt-reset');
+      if (card.classList.contains('active')) settleActiveCard();
+    }, 680);
   }
 }
 
@@ -232,13 +258,6 @@ next.addEventListener('click', () => {
 previous.addEventListener('click', () => {
   clearWheelMotion();
   goPrevious();
-});
-
-selectors.forEach((selector) => {
-  selector.addEventListener('click', () => {
-    clearWheelMotion();
-    setProject(Number(selector.dataset.select));
-  });
 });
 
 let tiltFrame = null;

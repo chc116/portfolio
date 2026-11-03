@@ -734,11 +734,19 @@ body.preview-open {
   z-index: 3;
 }
 
-.timeline-overview.compact-range .timeline-boundary-start b {
-  top: 38px;
-}
+.timeline-overview.compact-range .timeline-boundary-start b,
 .timeline-overview.compact-range .timeline-boundary-end b {
-  top: 15px;
+  top: 18px;
+}
+
+.timeline-overview.compact-range .timeline-boundary-end:not(.near-left):not(.near-right) b {
+  left: 0;
+  transform: translateX(calc(-100% - 8px));
+}
+
+.timeline-overview.compact-range .timeline-boundary-start:not(.near-left):not(.near-right) b {
+  left: 0;
+  transform: translateX(8px);
 }
 
 .timeline-scale-label {

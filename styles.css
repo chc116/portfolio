@@ -230,6 +230,11 @@ main {
   transition: none !important;
 }
 
+.carousel.dragging .project-card.hovered .card-surface,
+.carousel.dragging .project-card.pressed .card-surface {
+  transform: none;
+}
+
 
 .stage {
   position: relative;
@@ -246,10 +251,9 @@ main {
   height: 500px;
   cursor: pointer;
   pointer-events: none; /* carousel owns interaction */
-  transform-style: preserve-3d;
   transition:
-    left 300ms cubic-bezier(.2,.75,.25,1),
-    opacity 220ms ease;
+    left var(--carousel-speed, 300ms) cubic-bezier(.2,.75,.25,1),
+    opacity min(var(--carousel-speed, 300ms), 220ms) ease;
 }
 
 .card-surface {
@@ -273,7 +277,9 @@ main {
     0 28px 70px rgba(74,61,44,.10),
     inset 0 1px rgba(255,255,255,.78);
   overflow: hidden;
+  transform: translateY(0) scale(1);
   transition:
+    transform 180ms cubic-bezier(.2,.75,.25,1),
     box-shadow 180ms ease,
     border-color 180ms ease,
     background 180ms ease;
@@ -307,9 +313,19 @@ main {
 }
 
 .project-card.hovered .card-surface {
-  border-color: rgba(49,55,66,.22);
+  transform: translateY(-5px) scale(1.006);
+  border-color: rgba(49,55,66,.30);
   box-shadow:
-    0 32px 78px rgba(74,61,44,.14),
+    0 38px 88px rgba(74,61,44,.18),
+    0 8px 22px rgba(74,61,44,.08),
+    inset 0 1px rgba(255,255,255,.86);
+}
+
+.project-card.pressed .card-surface {
+  transform: translateY(-2px) scale(.994);
+  border-color: rgba(49,55,66,.34);
+  box-shadow:
+    0 24px 58px rgba(74,61,44,.13),
     inset 0 1px rgba(255,255,255,.82);
 }
 

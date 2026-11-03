@@ -36,7 +36,7 @@ let pointerDownCardIndex = null;
 let wheelAccumulator = 0;
 let wheelResetTimer = null;
 let lastWheelAt = 0;
-let carouselSpeed = 420;
+let carouselSpeed = 300;
 let lastWheelStepAt = 0;
 
 function linearDistance(index, current) {
@@ -166,7 +166,7 @@ function clearWheelMotion() {
   wheelAccumulator = 0;
   lastWheelAt = 0;
   lastWheelStepAt = 0;
-  setCarouselSpeed(420);
+  setCarouselSpeed(300);
 
   if (wheelResetTimer) {
     clearTimeout(wheelResetTimer);
@@ -185,11 +185,18 @@ previous.addEventListener('click', () => {
 });
 
 let hoveredCard = null;
+let pressedCard = null;
 
 function clearHoveredCard() {
   if (!hoveredCard) return;
   hoveredCard.classList.remove('hovered');
   hoveredCard = null;
+}
+
+function clearPressedCard() {
+  if (!pressedCard) return;
+  pressedCard.classList.remove('pressed');
+  pressedCard = null;
 }
 
 carousel.addEventListener('pointermove', (event) => {
@@ -220,27 +227,29 @@ carousel.addEventListener('wheel', (event) => {
     ? event.deltaY
     : event.deltaX;
 
-  if (Math.abs(delta) < 4) return;
+  if (Math.abs(delta) < 3) return;
 
   event.preventDefault();
 
   const now = performance.now();
+  const rapid = lastWheelAt > 0 && (now - lastWheelAt) < 150;
   lastWheelAt = now;
+
   wheelAccumulator += delta;
+  const threshold = rapid ? 58 : 78;
 
-  const threshold = 82;
-  const canStep = (now - lastWheelStepAt) >= 290;
-
-  if (Math.abs(wheelAccumulator) >= threshold && canStep) {
+  let steps = 0;
+  while (Math.abs(wheelAccumulator) >= threshold && Math.abs(steps) < 3) {
     const direction = wheelAccumulator > 0 ? 1 : -1;
-    const target = Math.max(0, Math.min(cards.length - 1, active + direction));
+    steps += direction;
+    wheelAccumulator -= direction * threshold;
+  }
 
-    wheelAccumulator = 0;
-    lastWheelStepAt = now;
-
+  if (steps !== 0) {
+    const target = Math.max(0, Math.min(cards.length - 1, active + steps));
     if (target !== active) {
-      setCarouselSpeed(320);
-      setProject(target)
+      setCarouselSpeed(rapid ? 150 : 260);
+      setProject(target);
     }
   }
 
@@ -248,9 +257,8 @@ carousel.addEventListener('wheel', (event) => {
   wheelResetTimer = window.setTimeout(() => {
     wheelAccumulator = 0;
     lastWheelAt = 0;
-    lastWheelStepAt = 0;
-    setCarouselSpeed(420);
-  }, 360);
+    setCarouselSpeed(240);
+  }, 140);
 }, { passive: false });
 
 carousel.addEventListener('pointerdown', (event) => {
@@ -260,6 +268,12 @@ carousel.addEventListener('pointerdown', (event) => {
 
   const downHit = findVisualCardAtPointer(event.clientX, event.clientY);
   pointerDownCardIndex = downHit ? downHit.index : null;
+
+  clearPressedCard();
+  if (downHit?.card) {
+    pressedCard = downHit.card;
+    pressedCard.classList.add('pressed');
+  }
 
   pointerStart = event.clientX;
   dragStartX = event.clientX;
@@ -287,6 +301,7 @@ carousel.addEventListener('pointermove', (event) => {
 
     isDragging = true;
     dragMoved = true;
+    clearPressedCard();
     setCarouselSpeed(0);
     carousel.classList.add('dragging');
   }
@@ -304,6 +319,8 @@ carousel.addEventListener('pointermove', (event) => {
 
 function finishPointerInteraction(event) {
   if (pointerStart === null) return;
+
+  clearPressedCard();
 
   if (!isDragging) {
     const upHit = findVisualCardAtPointer(event.clientX, event.clientY);
@@ -323,9 +340,9 @@ function finishPointerInteraction(event) {
       if (clickedIndex === active && cards[clickedIndex]?.classList.contains('project-card--cover')) {
         openImagePreview();
       } else {
-        setCarouselSpeed(360);
-        setProject(clickedIndex)
-        window.setTimeout(() => setCarouselSpeed(420), 380);
+        setCarouselSpeed(260);
+        setProject(clickedIndex);
+        window.setTimeout(() => setCarouselSpeed(300), 280);
       }
     }
 
@@ -366,7 +383,7 @@ function finishPointerInteraction(event) {
   updateCarousel();
 
   window.setTimeout(() => {
-    setCarouselSpeed(420);
+    setCarouselSpeed(300);
     suppressClick = false;
   }, 220);
 
@@ -377,6 +394,7 @@ function finishPointerInteraction(event) {
 
 carousel.addEventListener('pointerup', finishPointerInteraction);
 carousel.addEventListener('pointercancel', (event) => {
+  clearPressedCard();
   if (pointerStart === null) return;
 
   isDragging = false;
@@ -388,7 +406,7 @@ carousel.addEventListener('pointercancel', (event) => {
   suppressClick = false;
 
   carousel.classList.remove('dragging');
-  setCarouselSpeed(420);
+  setCarouselSpeed(300);
   updateCarousel();
 
   try {

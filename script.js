@@ -1,15 +1,17 @@
 const cards = [...document.querySelectorAll('.project-card')];
 const carousel = document.getElementById('carousel');
 const stage = carousel.querySelector('.stage');
-const timelineRange = document.getElementById('timelineRange');
-const timelineTicks = [...document.querySelectorAll('.timeline-tick')];
+const timelineViewport = document.getElementById('timelineViewport');
+const timelineStrip = document.getElementById('timelineStrip');
+const timelineActiveRange = document.getElementById('timelineActiveRange');
+const timelineMarkers = [...document.querySelectorAll('.timeline-marker')];
 
-const projectRanges = [
-  [0, 1], // Present to Mar. 2024
-  [3, 4], // Apr. 2023 to Jan. 2023
-  [2, 6], // Jun. 2023 to Jul. 2022
-  [5, 8], // Sept. 2022 to Feb. 2022
-  [7, 9]  // Jun. 2022 to Jan. 2022
+const projectPeriods = [
+  [0, 32],  // Present to Mar. 2024
+  [43, 46], // Apr. 2023 to Jan. 2023
+  [41, 52], // Jun. 2023 to Jul. 2022
+  [50, 57], // Sept. 2022 to Feb. 2022
+  [53, 58]  // Jun. 2022 to Jan. 2022
 ];
 const previous = document.getElementById('previous');
 const next = document.getElementById('next');
@@ -34,6 +36,7 @@ let wheelResetTimer = null;
 let lastWheelAt = 0;
 let carouselSpeed = 420;
 let settleTimer = null;
+const tiltResetTimers = new WeakMap();
 
 function linearDistance(index, current) {
   return index - current;
@@ -124,26 +127,46 @@ function prepareCarouselMotion() {
   cards.forEach((card) => card.classList.remove('motion-prep'));
 }
 
+function getTimelineGeometry() {
+  if (!timelineStrip || !timelineViewport) return null;
+
+  const styles = getComputedStyle(timelineStrip);
+  const monthStep = parseFloat(styles.getPropertyValue('--month-step')) || 24;
+  const pad = parseFloat(styles.getPropertyValue('--timeline-pad')) || 72;
+  const stripWidth = pad * 2 + 58 * monthStep;
+  const viewportWidth = timelineViewport.clientWidth;
+
+  return { monthStep, pad, stripWidth, viewportWidth };
+}
+
 function updateTimelineRange(index) {
-  if (!timelineRange || !timelineTicks.length) return;
+  if (!timelineStrip || !timelineActiveRange || !timelineMarkers.length) return;
 
-  const range = projectRanges[index] || [0, 0];
-  const leftIndex = Math.min(range[0], range[1]);
-  const rightIndex = Math.max(range[0], range[1]);
-  const denominator = Math.max(1, timelineTicks.length - 1);
+  const geometry = getTimelineGeometry();
+  if (!geometry) return;
 
-  const left = (leftIndex / denominator) * 100;
-  const width = ((rightIndex - leftIndex) / denominator) * 100;
+  const { monthStep, pad, stripWidth, viewportWidth } = geometry;
+  const period = projectPeriods[index] || [0, 0];
+  const endMonths = Math.min(period[0], period[1]);
+  const startMonths = Math.max(period[0], period[1]);
 
-  timelineRange.style.left = left.toFixed(3) + '%';
-  timelineRange.style.width = Math.max(width, 1.2).toFixed(3) + '%';
-
-  timelineTicks.forEach((tick, tickIndex) => {
-    const inRange = tickIndex >= leftIndex && tickIndex <= rightIndex;
-    const isEdge = tickIndex === leftIndex || tickIndex === rightIndex;
-    tick.classList.toggle('in-range', inRange);
-    tick.classList.toggle('range-edge', isEdge);
+  timelineMarkers.forEach((marker) => {
+    const months = Number(marker.dataset.months || 0);
+    marker.style.left = (pad + months * monthStep) + 'px';
+    marker.classList.toggle('active-edge', months === endMonths || months === startMonths);
   });
+
+  const rangeLeft = pad + endMonths * monthStep;
+  const rangeWidth = Math.max(8, (startMonths - endMonths) * monthStep);
+  timelineActiveRange.style.left = rangeLeft + 'px';
+  timelineActiveRange.style.width = rangeWidth + 'px';
+
+  const midpoint = rangeLeft + rangeWidth / 2;
+  const desiredTranslate = viewportWidth / 2 - midpoint;
+  const minTranslate = Math.min(0, viewportWidth - stripWidth);
+  const translate = Math.max(minTranslate, Math.min(0, desiredTranslate));
+
+  timelineStrip.style.transform = `translateX(${Math.round(translate)}px)`;
 }
 
 function updateCarousel(nativeActive = false) {
@@ -177,11 +200,21 @@ function updateCarousel(nativeActive = false) {
   next.disabled = active === cards.length - 1;
 }
 
+function clearTiltResetTimer(card) {
+  const timer = tiltResetTimers.get(card);
+  if (timer) {
+    window.clearTimeout(timer);
+    tiltResetTimers.delete(card);
+  }
+}
+
 function resetTilt(card, slow = false) {
   const surface = card.querySelector('.card-surface');
-  card.classList.remove('pointer-tilt');
-  card.classList.toggle('tilt-reset', slow);
+  clearTiltResetTimer(card);
   if (!surface) return;
+
+  const hadTilt = card.classList.contains('pointer-tilt');
+
   surface.style.setProperty('--tilt-x', '0deg');
   surface.style.setProperty('--tilt-y', '0deg');
   surface.style.setProperty('--pointer-x', '50%');
@@ -189,12 +222,22 @@ function resetTilt(card, slow = false) {
   surface.style.setProperty('--shift-x', '0px');
   surface.style.setProperty('--shift-y', '0px');
 
-  if (slow) {
-    window.setTimeout(() => {
-      card.classList.remove('tilt-reset');
+  if (slow && hadTilt) {
+    // Keep pointer-tilt active during the return so transform:none does not
+    // override the transition. Remove it only after the card has eased home.
+    card.classList.add('tilt-reset');
+
+    const timer = window.setTimeout(() => {
+      card.classList.remove('pointer-tilt', 'tilt-reset');
+      tiltResetTimers.delete(card);
       if (card.classList.contains('active')) settleActiveCard();
-    }, 680);
+    }, 640);
+
+    tiltResetTimers.set(card, timer);
+    return;
   }
+
+  card.classList.remove('pointer-tilt', 'tilt-reset');
 }
 
 function setProject(index) {
@@ -336,6 +379,7 @@ function applyPointerTilt(card, surface, rect, clientX, clientY) {
   const shiftY = (py - 0.5) * maxShiftY;
 
   if (tiltFrame) cancelAnimationFrame(tiltFrame);
+  clearTiltResetTimer(card);
   tiltFrame = requestAnimationFrame(() => {
     card.classList.remove('tilt-reset');
     card.classList.add('pointer-tilt');

@@ -1,6 +1,8 @@
 const cards = [...document.querySelectorAll('.project-card')];
 const selectors = [...document.querySelectorAll('.selector')];
 const carousel = document.getElementById('carousel');
+const stage = carousel.querySelector('.stage');
+const selectorTrack = document.querySelector('.selectors');
 const previous = document.getElementById('previous');
 const next = document.getElementById('next');
 const projectNav = document.getElementById('projectNav');
@@ -8,7 +10,7 @@ const projectToggle = document.getElementById('projectToggle');
 const imagePreview = document.getElementById('imagePreview');
 const imagePreviewClose = document.getElementById('imagePreviewClose');
 
-let active = 0;
+let active = cards.length - 1;
 let pointerStart = null;
 let dragOffset = 0;
 let dragStartX = 0;
@@ -56,13 +58,17 @@ function updateCarousel() {
     const rotateY = distance * -19;
     const scale = 1 - depth * 0.105;
 
+    const centerX = Math.round(stage.clientWidth / 2);
+    const centerY = Math.round(stage.clientHeight / 2);
+    const cardLeft = Math.round(centerX - card.offsetWidth / 2 + x);
+    const cardTop = Math.round(centerY - card.offsetHeight / 2);
+
     if (depth === 0) {
       card.style.transform =
-        `translate(-50%, -50%) translateX(${x}px)`;
+        `translate(${cardLeft}px, ${cardTop}px)`;
     } else {
       card.style.transform =
-        `translate(-50%, -50%)
-         translate3d(${x}px, 0, ${z}px)
+        `translate3d(${cardLeft}px, ${cardTop}px, ${z}px)
          rotateY(${rotateY}deg)
          scale(${scale})`;
     }
@@ -75,6 +81,11 @@ function updateCarousel() {
   selectors.forEach((selector, index) => {
     selector.classList.toggle('active', index === active);
   });
+
+  if (selectorTrack) {
+    const progress = cards.length > 1 ? (active / (cards.length - 1)) * 100 : 0;
+    selectorTrack.style.setProperty('--timeline-progress', progress.toFixed(2));
+  }
 
   previous.disabled = active === 0;
   next.disabled = active === cards.length - 1;
@@ -393,7 +404,7 @@ function finishPointerInteraction(event) {
     suppressClick = false;
 
     if (clickedIndex !== null && clickedIndex !== undefined) {
-      if (clickedIndex === 0 && active === 0) {
+      if (clickedIndex === active && cards[clickedIndex]?.classList.contains('project-card--cover')) {
         openImagePreview();
       } else {
         setCarouselSpeed(360);

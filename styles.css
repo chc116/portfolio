@@ -752,6 +752,10 @@ body.preview-open {
   white-space: nowrap;
 }
 
+.timeline-overview.compact-range .timeline-boundary-start b {
+  top: 36px;
+}
+
 .timeline-scale-label {
   position: absolute;
   top: 46px;

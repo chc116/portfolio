@@ -24,6 +24,8 @@ let pointerDownCardIndex = null;
 let wheelAccumulator = 0;
 let wheelResetTimer = null;
 let lastWheelAt = 0;
+let carouselSpeed = 420;
+let settleTimer = null;
 
 function linearDistance(index, current) {
   return index - current;
@@ -35,44 +37,103 @@ function getCardSpacing() {
     : Math.min(Math.max(window.innerWidth * 0.45, 650), 800);
 }
 
-function updateCarousel() {
-  const total = cards.length;
+function getCardLayout(index) {
+  const distance = linearDistance(index, active);
+  const depth = Math.abs(distance);
   const spacing = getCardSpacing();
 
+  let x = distance * spacing;
+  if (depth > 1) x *= 1.05;
+
+  let liveOffset = dragOffset;
+  if ((active === 0 && liveOffset > 0) ||
+      (active === cards.length - 1 && liveOffset < 0)) {
+    liveOffset *= 0.28;
+  }
+
+  x += liveOffset;
+
+  const centerX = Math.round(stage.clientWidth / 2);
+  const centerY = Math.round(stage.clientHeight / 2);
+  const card = cards[index];
+  const left = Math.round(centerX - card.offsetWidth / 2 + x);
+  const top = Math.round(centerY - card.offsetHeight / 2);
+
+  return {
+    distance,
+    depth,
+    left,
+    top,
+    z: -depth * 220,
+    rotateY: distance * -19,
+    scale: 1 - depth * 0.105
+  };
+}
+
+function settleActiveCard() {
+  if (isDragging || Math.abs(dragOffset) > 0.5) return;
+
+  const card = cards[active];
+  if (!card) return;
+
+  const layout = getCardLayout(active);
+  card.classList.add('native-snap');
+  card.style.left = layout.left + 'px';
+  card.style.top = layout.top + 'px';
+  card.style.transform = 'none';
+
+  requestAnimationFrame(() => {
+    card.classList.remove('native-snap');
+  });
+}
+
+function scheduleActiveSettle(delay = carouselSpeed + 36) {
+  if (settleTimer) clearTimeout(settleTimer);
+  settleTimer = window.setTimeout(() => {
+    settleTimer = null;
+    settleActiveCard();
+  }, Math.max(40, delay));
+}
+
+function prepareCarouselMotion() {
+  if (settleTimer) {
+    clearTimeout(settleTimer);
+    settleTimer = null;
+  }
+
   cards.forEach((card, index) => {
-    const distance = linearDistance(index, active);
-    const depth = Math.abs(distance);
+    const layout = getCardLayout(index);
+    card.classList.add('motion-prep');
+    card.style.left = '0px';
+    card.style.top = '0px';
+    card.style.transform =
+      `translate3d(${layout.left}px, ${layout.top}px, ${layout.z}px)
+       rotateY(${layout.rotateY}deg)
+       scale(${layout.scale})`;
+  });
 
-    let x = distance * spacing;
-    if (depth > 1) x *= 1.05;
+  void stage.offsetWidth;
+  cards.forEach((card) => card.classList.remove('motion-prep'));
+}
 
-    let liveOffset = dragOffset;
-    if ((active === 0 && liveOffset > 0) ||
-        (active === cards.length - 1 && liveOffset < 0)) {
-      liveOffset *= 0.28;
-    }
+function updateCarousel(nativeActive = false) {
+  cards.forEach((card, index) => {
+    const layout = getCardLayout(index);
+    const { depth } = layout;
 
-    x += liveOffset;
-
-    const z = -depth * 220;
-    const rotateY = distance * -19;
-    const scale = 1 - depth * 0.105;
-
-    const centerX = Math.round(stage.clientWidth / 2);
-    const centerY = Math.round(stage.clientHeight / 2);
-    const cardLeft = Math.round(centerX - card.offsetWidth / 2 + x);
-    const cardTop = Math.round(centerY - card.offsetHeight / 2);
-
-    card.style.left = cardLeft + 'px';
-    card.style.top = cardTop + 'px';
-
-    if (depth === 0) {
+    if (nativeActive && depth === 0 && !isDragging && Math.abs(dragOffset) < 0.5) {
+      card.classList.add('native-snap');
+      card.style.left = layout.left + 'px';
+      card.style.top = layout.top + 'px';
       card.style.transform = 'none';
+      requestAnimationFrame(() => card.classList.remove('native-snap'));
     } else {
+      card.style.left = '0px';
+      card.style.top = '0px';
       card.style.transform =
-        `translateZ(${z}px)
-         rotateY(${rotateY}deg)
-         scale(${scale})`;
+        `translate3d(${layout.left}px, ${layout.top}px, ${layout.z}px)
+         rotateY(${layout.rotateY}deg)
+         scale(${layout.scale})`;
     }
     card.style.zIndex = String(20 - depth);
     card.style.opacity = depth === 0 ? '1' : depth === 1 ? '.72' : depth === 2 ? '.28' : '.10';
@@ -111,9 +172,17 @@ function resetTilt(card, slow = false) {
 }
 
 function setProject(index) {
+  const target = Math.max(0, Math.min(cards.length - 1, index));
+  if (target === active) {
+    updateCarousel(true);
+    return;
+  }
+
+  prepareCarouselMotion();
   cards.forEach(resetTilt);
-  active = Math.max(0, Math.min(cards.length - 1, index));
-  updateCarousel();
+  active = target;
+  updateCarousel(false);
+  scheduleActiveSettle();
 }
 
 function goNext() {
@@ -125,6 +194,7 @@ function goPrevious() {
 }
 
 function setCarouselSpeed(milliseconds) {
+  carouselSpeed = milliseconds;
   document.documentElement.style.setProperty('--carousel-speed', milliseconds + 'ms');
 }
 
@@ -371,6 +441,7 @@ carousel.addEventListener('pointermove', (event) => {
 
     isDragging = true;
     dragMoved = true;
+    prepareCarouselMotion();
     resetHoveredTiltCard(false);
     cards.forEach((card) => resetTilt(card, false));
     setCarouselSpeed(0);
@@ -449,7 +520,8 @@ function finishPointerInteraction(event) {
     active = target;
   }
 
-  updateCarousel();
+  updateCarousel(false);
+  scheduleActiveSettle(336);
 
   window.setTimeout(() => {
     setCarouselSpeed(420);
@@ -475,7 +547,7 @@ carousel.addEventListener('pointercancel', (event) => {
 
   carousel.classList.remove('dragging');
   setCarouselSpeed(420);
-  updateCarousel();
+  updateCarousel(true);
 
   try {
     carousel.releasePointerCapture?.(event.pointerId);
@@ -520,6 +592,10 @@ document.addEventListener('click', (event) => {
   }
 });
 
-window.addEventListener('resize', updateCarousel);
+window.addEventListener('resize', () => {
+  if (settleTimer) clearTimeout(settleTimer);
+  settleTimer = null;
+  updateCarousel(true);
+});
 
-updateCarousel();
+updateCarousel(true);

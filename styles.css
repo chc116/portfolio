@@ -358,6 +358,7 @@ main {
     transform 620ms cubic-bezier(.16,.72,.26,1),
     box-shadow 480ms ease,
     border-color .28s ease;
+  will-change: transform;
 }
 
 .project-card:nth-child(1) { --accent: var(--blue); }
@@ -549,7 +550,7 @@ main {
   width: min(95vw, 1580px);
   height: min(88vh, 900px);
   display: grid;
-  grid-template-columns: minmax(300px, 390px) minmax(0, 1fr);
+  grid-template-columns: minmax(340px, 430px) minmax(0, 1fr);
   align-items: center;
   gap: clamp(28px, 4vw, 64px);
   transform: translateY(12px);
@@ -572,8 +573,8 @@ main {
 
 .image-preview-info h2 {
   margin: 0;
-  max-width: 390px;
-  font-size: clamp(24px, 2.25vw, 35px);
+  max-width: 430px;
+  font-size: clamp(22px, 1.9vw, 31px);
   line-height: 1.08;
   font-weight: 600;
   letter-spacing: -.015em;
@@ -691,64 +692,66 @@ body.preview-open {
   background: rgba(251,248,243,.92);
 }
 
-.timeline-scale {
+.timeline-viewport {
   position: relative;
   width: min(940px, 76vw);
-  height: 68px;
+  height: 76px;
+  overflow: hidden;
   flex: 0 1 auto;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 4%, #000 96%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 4%, #000 96%, transparent 100%);
 }
 
-.timeline-track {
+.timeline-strip {
+  --month-step: 24px;
+  --timeline-pad: 72px;
   position: absolute;
-  left: 4.5%;
-  right: 4.5%;
-  top: 10px;
-  height: 2px;
-  border-radius: 999px;
-  background: rgba(49,55,66,.16);
-}
-
-.timeline-range {
-  position: absolute;
-  top: -2px;
   left: 0;
-  width: 10%;
-  height: 6px;
+  top: 0;
+  width: calc(var(--timeline-pad) * 2 + 58 * var(--month-step));
+  height: 76px;
+  transform: translateX(0);
+  transition: transform var(--carousel-speed, 420ms) cubic-bezier(.18,.82,.24,1);
+}
+
+.timeline-axis {
+  position: absolute;
+  left: var(--timeline-pad);
+  right: var(--timeline-pad);
+  top: 18px;
+  height: 1px;
+  background: rgba(49,55,66,.18);
+}
+
+.timeline-active-range {
+  position: absolute;
+  top: 15px;
+  height: 7px;
   border-radius: 999px;
   background: #343d49;
-  box-shadow: 0 2px 9px rgba(52,61,73,.16);
+  box-shadow: 0 2px 9px rgba(52,61,73,.15);
   transition:
     left var(--carousel-speed, 420ms) cubic-bezier(.18,.82,.24,1),
     width var(--carousel-speed, 420ms) cubic-bezier(.18,.82,.24,1);
 }
 
-.timeline-ticks {
+.timeline-marker {
   position: absolute;
-  inset: 0;
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  align-items: start;
+  top: 14px;
+  width: 1px;
+  color: #7f8791;
+  text-align: center;
 }
 
-.timeline-tick {
-  position: relative;
-  min-width: 0;
-  padding-top: 3px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  color: #848b94;
-  transition: color .28s ease;
-}
-
-.timeline-tick i {
-  position: relative;
-  z-index: 2;
-  width: 8px;
-  height: 8px;
+.timeline-marker i {
+  position: absolute;
+  left: -4px;
+  top: 0;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
   background: var(--bg);
-  border: 1.5px solid #969da6;
+  border: 1.5px solid #949ba4;
   box-shadow: 0 0 0 4px var(--bg);
   transition:
     background .28s ease,
@@ -756,28 +759,32 @@ body.preview-open {
     transform .28s ease;
 }
 
-.timeline-tick b {
-  margin-top: 11px;
+.timeline-marker b {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   font-size: 9px;
   line-height: 1.05;
   font-weight: 400;
   white-space: nowrap;
 }
 
-.timeline-tick.in-range {
-  color: #303842;
+.timeline-marker.marker-row-a b {
+  top: 19px;
 }
 
-.timeline-tick.in-range i {
-  background: #46515f;
-  border-color: #46515f;
-  transform: scale(1.08);
+.timeline-marker.marker-row-b b {
+  top: 38px;
 }
 
-.timeline-tick.range-edge i {
-  background: #222a34;
-  border-color: #222a34;
-  transform: scale(1.22);
+.timeline-marker.active-edge {
+  color: #20262f;
+}
+
+.timeline-marker.active-edge i {
+  background: #26303a;
+  border-color: #26303a;
+  transform: scale(1.18);
 }
 
 footer {
@@ -846,15 +853,16 @@ footer {
   .image-preview-info h2 {
     font-size: 27px;
   }
-  .timeline-scale {
+  .timeline-viewport {
     width: min(82vw, 620px);
-    overflow: visible;
+    height: 70px;
   }
-  .timeline-tick b {
+  .timeline-strip {
+    --month-step: 18px;
+    --timeline-pad: 52px;
+  }
+  .timeline-marker b {
     font-size: 8px;
-    transform: rotate(-42deg);
-    transform-origin: top center;
-    margin-top: 13px;
   }
   .image-preview-close {
     top: 4px;

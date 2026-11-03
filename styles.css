@@ -26,8 +26,9 @@ html, body {
 }
 
 body {
+  height: 100vh;
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 button, a { font: inherit; }
@@ -74,8 +75,8 @@ a { color: inherit; text-decoration: none; }
   top: 0;
   left: 0;
   right: 0;
-  height: 72px;
-  padding: 0 5vw;
+  height: 52px;
+  padding: 0 4.5vw;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -92,7 +93,7 @@ a { color: inherit; text-decoration: none; }
 .main-nav {
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 26px;
 }
 
 .main-nav > a,
@@ -177,18 +178,19 @@ a { color: inherit; text-decoration: none; }
 }
 
 main {
-  min-height: 100vh;
-  padding-top: 72px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  height: 100vh;
+  min-height: 0;
+  padding-top: 52px;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) 76px;
+  overflow: hidden;
 }
 
 .intro {
   position: relative;
   z-index: 5;
   width: min(1120px, 90vw);
-  margin: 0 auto 4px;
+  margin: 16px auto 0;
 }
 
 .intro p {
@@ -212,7 +214,8 @@ main {
   position: relative;
   cursor: grab;
   width: 100%;
-  height: min(850px, 82vh);
+  height: auto;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -239,7 +242,8 @@ main {
 .stage {
   position: relative;
   width: min(1880px, 100vw);
-  height: 700px;
+  height: min(700px, 100%);
+  min-height: 624px;
 }
 
 .project-card {
@@ -515,6 +519,7 @@ main {
 .image-preview-shell {
   position: relative;
   z-index: 1;
+  pointer-events: none;
   width: min(95vw, 1580px);
   height: min(88vh, 900px);
   display: grid;
@@ -534,6 +539,7 @@ main {
 }
 
 .image-preview-info {
+  pointer-events: auto;
   align-self: center;
   padding-left: clamp(8px, 2vw, 28px);
   color: #20262f;
@@ -571,6 +577,7 @@ main {
 }
 
 .image-preview-media {
+  pointer-events: auto;
   min-width: 0;
   height: 100%;
   display: grid;
@@ -591,6 +598,7 @@ main {
 }
 
 .image-preview-close {
+  pointer-events: auto;
   position: absolute;
   top: 0;
   right: 0;
@@ -623,7 +631,7 @@ body.preview-open {
   position: relative;
   z-index: 20;
   width: min(1120px, 90vw);
-  margin: -14px auto 0;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -714,14 +722,22 @@ body.preview-open {
   top: 18px;
   left: 50%;
   transform: translateX(-50%);
+  padding: 3px 6px;
+  border-radius: 6px;
+  background: rgba(241,237,230,.94);
+  color: #252d37;
   font-size: 10px;
   line-height: 1;
   font-weight: 500;
   white-space: nowrap;
+  z-index: 3;
 }
 
 .timeline-overview.compact-range .timeline-boundary-start b {
-  top: 36px;
+  top: 38px;
+}
+.timeline-overview.compact-range .timeline-boundary-end b {
+  top: 15px;
 }
 
 .timeline-scale-label {
@@ -739,7 +755,7 @@ footer {
   position: fixed;
   left: 5vw;
   right: 5vw;
-  bottom: 23px;
+  bottom: 10px;
   display: flex;
   justify-content: space-between;
   color: #8a908f;
@@ -748,10 +764,27 @@ footer {
 }
 
 @media (max-width: 760px) {
-  .site-header { padding: 0 22px; }
+  body {
+    height: auto;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+  .site-header {
+    height: 64px;
+    padding: 0 22px;
+  }
   .main-nav { gap: 18px; }
   .project-menu { right: -55px; }
-  main { padding-top: 92px; justify-content: flex-start; }
+  main {
+    height: auto;
+    min-height: 100vh;
+    padding-top: 64px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow: visible;
+  }
   .intro { width: calc(100% - 44px); margin-top: 30px; }
   .intro h1 { font-size: 32px; }
   .carousel { height: 570px; }
@@ -833,9 +866,9 @@ footer {
   transform: none;
 }
 .timeline-boundary.near-right b {
-  left: auto;
-  right: 0;
-  transform: none;
+  left: 0;
+  right: auto;
+  transform: translateX(-100%);
 }
 .timeline-overview {
   overflow: visible;

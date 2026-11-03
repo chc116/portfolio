@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" data-build="20261104-proportional-timeline-v2">
+<html lang="en" data-build="20261104-clean-timeline-transition-v3">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Yechen Wang — portfolio." />
   <title>Yechen Wang — Portfolio</title>
-  <link rel="stylesheet" href="styles.css?v=20261104-proportional-timeline-v2" />
+  <link rel="stylesheet" href="styles.css?v=20261104-clean-timeline-transition-v3" />
 </head>
 <body>
   <div class="ambient" aria-hidden="true"></div>
@@ -44,7 +44,7 @@
         <article class="project-card project-card--cover" data-index="0">
           <div class="card-surface">
             <div class="visual visual-cover">
-              <img src="MPhilthesiscover.png?v=20261104-proportional-timeline-v2" alt="Fluid Antenna Systems research cover" />
+              <img src="MPhilthesiscover.png?v=20261104-clean-timeline-transition-v3" alt="Fluid Antenna Systems research cover" />
             </div>
             <div class="card-footer-meta">
               <div class="card-footer-left">
@@ -121,22 +121,19 @@
     <div class="carousel-controls" aria-label="Project timeline">
       <button class="arrow" id="previous" type="button" aria-label="Previous project">←</button>
 
-      <div class="timeline-viewport" id="timelineViewport" aria-label="Project dates from present to January 2022">
-        <div class="timeline-strip" id="timelineStrip">
-          <div class="timeline-axis" aria-hidden="true"></div>
-          <div class="timeline-active-range" id="timelineActiveRange" aria-hidden="true"></div>
+      <div class="timeline-overview" id="timelineOverview" aria-label="Project timeline from present to January 2022">
+        <span class="timeline-scale-label timeline-now">Present</span>
+        <div class="timeline-axis" aria-hidden="true"></div>
+        <div class="timeline-active-range" id="timelineActiveRange" aria-hidden="true"></div>
 
-          <span class="timeline-marker marker-row-a" data-months="0"><i></i><b>Present</b></span>
-          <span class="timeline-marker marker-row-b" data-months="32"><i></i><b>Mar. 2024</b></span>
-          <span class="timeline-marker marker-row-a" data-months="41"><i></i><b>Jun. 2023</b></span>
-          <span class="timeline-marker marker-row-b" data-months="43"><i></i><b>Apr. 2023</b></span>
-          <span class="timeline-marker marker-row-a" data-months="46"><i></i><b>Jan. 2023</b></span>
-          <span class="timeline-marker marker-row-b" data-months="50"><i></i><b>Sept. 2022</b></span>
-          <span class="timeline-marker marker-row-a" data-months="52"><i></i><b>Jul. 2022</b></span>
-          <span class="timeline-marker marker-row-b" data-months="53"><i></i><b>Jun. 2022</b></span>
-          <span class="timeline-marker marker-row-a" data-months="57"><i></i><b>Feb. 2022</b></span>
-          <span class="timeline-marker marker-row-b" data-months="58"><i></i><b>Jan. 2022</b></span>
-        </div>
+        <span class="timeline-boundary timeline-boundary-end" id="timelineEndMarker">
+          <i></i><b id="timelineEndLabel">Present</b>
+        </span>
+        <span class="timeline-boundary timeline-boundary-start" id="timelineStartMarker">
+          <i></i><b id="timelineStartLabel">Mar. 2024</b>
+        </span>
+
+        <span class="timeline-scale-label timeline-oldest">Jan. 2022</span>
       </div>
 
       <button class="arrow" id="next" type="button" aria-label="Next project">→</button>
@@ -154,7 +151,7 @@
         <time>Mar. 2024 – Present</time>
       </aside>
       <div class="image-preview-media">
-        <img id="imagePreviewImage" src="MPhilthesiscover.png?v=20261104-proportional-timeline-v2" alt="Fluid Antenna Systems research cover preview" />
+        <img id="imagePreviewImage" src="MPhilthesiscover.png?v=20261104-clean-timeline-transition-v3" alt="Fluid Antenna Systems research cover preview" />
       </div>
     </div>
   </div>
@@ -163,8 +160,8 @@
     <span>Yechen Wang</span>
     <span>Drag · scroll · arrow keys</span>
   </footer>
-  <script src="script.js?v=20261104-proportional-timeline-v2"></script>
+  <script src="script.js?v=20261104-clean-timeline-transition-v3"></script>
 </body>
 </html>
 
-<!-- portfolio-build: 20261104-proportional-timeline-v2 -->
+<!-- portfolio-build: 20261104-clean-timeline-transition-v3 -->

@@ -216,7 +216,6 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
-  perspective: 1500px;
   overflow: hidden;
   touch-action: pan-y;
   user-select: none;
@@ -231,15 +230,11 @@ main {
   transition: none !important;
 }
 
-.carousel.dragging .card-surface {
-  transition: transform 45ms linear, box-shadow .12s ease, border-color .12s ease;
-}
 
 .stage {
   position: relative;
   width: min(1880px, 100vw);
   height: 700px;
-  transform-style: preserve-3d;
 }
 
 .project-card {
@@ -253,9 +248,8 @@ main {
   pointer-events: none; /* carousel owns interaction */
   transform-style: preserve-3d;
   transition:
-    transform var(--carousel-speed, 420ms) cubic-bezier(.18,.82,.24,1),
-    opacity var(--carousel-speed, 420ms) ease,
-    filter var(--carousel-speed, 420ms) ease;
+    left 300ms cubic-bezier(.2,.75,.25,1),
+    opacity 220ms ease;
 }
 
 .card-surface {
@@ -279,16 +273,10 @@ main {
     0 28px 70px rgba(74,61,44,.10),
     inset 0 1px rgba(255,255,255,.78);
   overflow: hidden;
-  transform-style: preserve-3d;
-  transform:
-    translate(var(--shift-x), var(--shift-y))
-    rotateX(var(--tilt-x))
-    rotateY(var(--tilt-y));
   transition:
-    transform 260ms cubic-bezier(.22,.61,.36,1),
-    box-shadow .32s ease,
-    border-color .32s ease;
-  will-change: auto;
+    box-shadow 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
 }
 
 .card-surface::before {
@@ -296,12 +284,8 @@ main {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at var(--pointer-x) var(--pointer-y),
-      rgba(255,255,255,.62),
-      rgba(255,255,255,.16) 18%,
-      transparent 42%),
     radial-gradient(circle at 50% 38%,
-      color-mix(in srgb, var(--accent) 18%, transparent),
+      color-mix(in srgb, var(--accent) 14%, transparent),
       transparent 54%);
   pointer-events: none;
 }
@@ -318,47 +302,15 @@ main {
   pointer-events: none;
 }
 
-.project-card.motion-prep,
-.project-card.native-snap {
-  transition: none !important;
-}
-
-.project-card.active {
-  transform-style: flat;
-  will-change: auto;
-}
-
 .project-card.active .card-surface {
   border-color: var(--line-strong);
-  transform-style: flat;
 }
 
-.project-card.active:not(.pointer-tilt) .card-surface {
-  transform: none;
-}
-
-.project-card.pointer-tilt .card-surface {
-  will-change: transform;
-}
-
-.project-card.active.pointer-tilt .card-surface {
+.project-card.hovered .card-surface {
+  border-color: rgba(49,55,66,.22);
   box-shadow:
-    0 36px 82px rgba(74,61,44,.16),
-    inset 0 1px rgba(255,255,255,.84);
-}
-
-.project-card.pointer-tilt:not(.active) .card-surface {
-  box-shadow:
-    0 34px 74px rgba(74,61,44,.15),
-    inset 0 1px rgba(255,255,255,.84);
-}
-
-.project-card.tilt-reset .card-surface {
-  transition:
-    transform 620ms cubic-bezier(.16,.72,.26,1),
-    box-shadow 480ms ease,
-    border-color .28s ease;
-  will-change: transform;
+    0 32px 78px rgba(74,61,44,.14),
+    inset 0 1px rgba(255,255,255,.82);
 }
 
 .project-card:nth-child(1) { --accent: var(--blue); }
@@ -382,19 +334,19 @@ main {
   margin: 0 0 16px;
   border-radius: 15px;
   overflow: hidden;
-  border: 1px solid rgba(49,55,66,.08);
-  background: #f7fbff;
-  box-shadow: 0 10px 24px rgba(67,79,91,.075);
+  border: 0;
+  background: transparent;
+  box-shadow: 0 10px 24px rgba(67,79,91,.065);
 }
 
 .project-card--cover .visual-cover img {
   width: 100%;
   height: 100%;
   display: block;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center;
-  background: #f7fbff;
-  transform: none;
+  background: transparent;
+  transform: scale(1.012);
   image-rendering: -webkit-optimize-contrast;
 }
 

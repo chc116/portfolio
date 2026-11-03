@@ -37,7 +37,6 @@ let wheelAccumulator = 0;
 let wheelResetTimer = null;
 let lastWheelAt = 0;
 let carouselSpeed = 420;
-let pendingSettle = null;
 let lastWheelStepAt = 0;
 const tiltResetTimers = new WeakMap();
 
@@ -77,88 +76,12 @@ function getCardLayout(index) {
     distance,
     depth,
     left,
-    top,
-    z: -depth * 220,
-    rotateY: distance * -19,
-    scale: 1 - depth * 0.105
+    top
   };
-}
-
-function settleActiveCard() {
-  if (isDragging || Math.abs(dragOffset) > 0.5) return;
-
-  const card = cards[active];
-  if (!card) return;
-
-  const layout = getCardLayout(active);
-  card.classList.add('native-snap');
-  card.style.left = layout.left + 'px';
-  card.style.top = layout.top + 'px';
-  card.style.transform = 'none';
-
-  requestAnimationFrame(() => {
-    card.classList.remove('native-snap');
-  });
-}
-
-function cancelPendingSettle() {
-  if (!pendingSettle) return;
-
-  const { card, handler, fallback } = pendingSettle;
-  card?.removeEventListener('transitionend', handler);
-  if (fallback) window.clearTimeout(fallback);
-  pendingSettle = null;
-}
-
-function settleAfterMotion() {
-  cancelPendingSettle();
-
-  const card = cards[active];
-  if (!card || isDragging) return;
-
-  let finished = false;
-
-  const finish = () => {
-    if (finished) return;
-    finished = true;
-    cancelPendingSettle();
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        if (!isDragging && card === cards[active]) {
-          settleActiveCard();
-        }
-      });
-    });
-  };
-
-  const handler = (event) => {
-    if (event.target === card && event.propertyName === 'transform') {
-      finish();
-    }
-  };
-
-  card.addEventListener('transitionend', handler);
-  const fallback = window.setTimeout(finish, Math.max(460, carouselSpeed + 140));
-  pendingSettle = { card, handler, fallback };
 }
 
 function prepareCarouselMotion() {
-  cancelPendingSettle();
-
-  cards.forEach((card, index) => {
-    const layout = getCardLayout(index);
-    card.classList.add('motion-prep');
-    card.style.left = '0px';
-    card.style.top = '0px';
-    card.style.transform =
-      `translate3d(${layout.left}px, ${layout.top}px, ${layout.z}px)
-       rotateY(${layout.rotateY}deg)
-       scale(${layout.scale})`;
-  });
-
-  void stage.offsetWidth;
-  cards.forEach((card) => card.classList.remove('motion-prep'));
+  
 }
 
 function updateTimelineRange(index) {
@@ -187,28 +110,17 @@ function updateTimelineRange(index) {
   timelineOverview.classList.toggle('compact-range', width < 11);
 }
 
-function updateCarousel(nativeActive = false) {
+function updateCarousel() {
   cards.forEach((card, index) => {
     const layout = getCardLayout(index);
     const { depth } = layout;
 
-    if (nativeActive && depth === 0 && !isDragging && Math.abs(dragOffset) < 0.5) {
-      card.classList.add('native-snap');
-      card.style.left = layout.left + 'px';
-      card.style.top = layout.top + 'px';
-      card.style.transform = 'none';
-      requestAnimationFrame(() => card.classList.remove('native-snap'));
-    } else {
-      card.style.left = '0px';
-      card.style.top = '0px';
-      card.style.transform =
-        `translate3d(${layout.left}px, ${layout.top}px, ${layout.z}px)
-         rotateY(${layout.rotateY}deg)
-         scale(${layout.scale})`;
-    }
+    card.style.left = layout.left + 'px';
+    card.style.top = layout.top + 'px';
+    card.style.transform = 'none';
     card.style.zIndex = String(20 - depth);
-    card.style.opacity = depth === 0 ? '1' : depth === 1 ? '.72' : depth === 2 ? '.28' : '.10';
-    card.style.filter = depth === 0 ? 'none' : `brightness(${Math.max(.82, 1 - depth * .09)}) saturate(${Math.max(.82, 1 - depth * .08)})`;
+    card.style.opacity = depth === 0 ? '1' : depth === 1 ? '.68' : depth === 2 ? '.24' : '.08';
+    card.style.filter = 'none';
     card.classList.toggle('active', index === active);
   });
 
@@ -218,60 +130,15 @@ function updateCarousel(nativeActive = false) {
   next.disabled = active === cards.length - 1;
 }
 
-function clearTiltResetTimer(card) {
-  const timer = tiltResetTimers.get(card);
-  if (timer) {
-    window.clearTimeout(timer);
-    tiltResetTimers.delete(card);
-  }
-}
-
-function resetTilt(card, slow = false) {
-  const surface = card.querySelector('.card-surface');
-  clearTiltResetTimer(card);
-  if (!surface) return;
-
-  const hadTilt = card.classList.contains('pointer-tilt');
-
-  surface.style.setProperty('--tilt-x', '0deg');
-  surface.style.setProperty('--tilt-y', '0deg');
-  surface.style.setProperty('--pointer-x', '50%');
-  surface.style.setProperty('--pointer-y', '50%');
-  surface.style.setProperty('--shift-x', '0px');
-  surface.style.setProperty('--shift-y', '0px');
-
-  if (slow && hadTilt) {
-    // Keep pointer-tilt active during the return so transform:none does not
-    // override the transition. Remove it only after the card has eased home.
-    card.classList.add('tilt-reset');
-
-    const timer = window.setTimeout(() => {
-      card.classList.remove('pointer-tilt', 'tilt-reset');
-      tiltResetTimers.delete(card);
-      if (card.classList.contains('active')) settleActiveCard();
-    }, 640);
-
-    tiltResetTimers.set(card, timer);
-    return;
-  }
-
-  card.classList.remove('pointer-tilt', 'tilt-reset');
-}
-
-function setProject(index, settle = true) {
+function setProject(index) {
   const target = Math.max(0, Math.min(cards.length - 1, index));
-  if (target === active) {
-    if (settle) settleActiveCard();
-    return;
-  }
+  if (target === active) return;
 
-  prepareCarouselMotion();
-  cards.forEach(resetTilt);
+  
   active = target;
-  updateCarousel(false);
-
-  if (settle) settleAfterMotion();
+  updateCarousel();
 }
+
 
 function goNext() {
   if (active < cards.length - 1) setProject(active + 1);
@@ -288,7 +155,6 @@ function setCarouselSpeed(milliseconds) {
 
 function openImagePreview() {
   if (!imagePreview) return;
-  resetHoveredTiltCard(false);
   imagePreview.classList.add('open');
   imagePreview.setAttribute('aria-hidden', 'false');
   document.body.classList.add('preview-open');
@@ -323,127 +189,30 @@ previous.addEventListener('click', () => {
   goPrevious();
 });
 
-let tiltFrame = null;
-let hoveredTiltCard = null;
+let hoveredCard = null;
 
-function cardContainsPointer(card, x, y) {
-  const surface = card.querySelector('.card-surface');
-  if (!surface) return null;
-
-  const rect = surface.getBoundingClientRect();
-  const inside =
-    x >= rect.left &&
-    x <= rect.right &&
-    y >= rect.top &&
-    y <= rect.bottom;
-
-  if (!inside) return null;
-
-  const centerX = rect.left + rect.width / 2;
-  const centerY = rect.top + rect.height / 2;
-  const normalizedDistance =
-    Math.abs(x - centerX) / Math.max(1, rect.width) +
-    Math.abs(y - centerY) / Math.max(1, rect.height);
-
-  return { card, surface, rect, normalizedDistance };
-}
-
-function findVisualCardAtPointer(x, y) {
-  const candidates = cards
-    .map((card, index) => {
-      const hit = cardContainsPointer(card, x, y);
-      if (!hit) return null;
-
-      const opacity = Number.parseFloat(card.style.opacity || '1');
-      if (opacity < 0.08) return null;
-
-      const centerX = hit.rect.left + hit.rect.width / 2;
-      const centerDistance = Math.abs(x - centerX);
-
-      return { ...hit, index, centerDistance, opacity };
-    })
-    .filter(Boolean);
-
-  if (!candidates.length) return null;
-
-  // Choose the card whose visible face center is nearest to the pointer.
-  // This makes side cards independently hoverable/clickable even when
-  // their transformed bounding boxes overlap the active card.
-  candidates.sort((a, b) => {
-    const centerDiff = a.centerDistance - b.centerDistance;
-    if (Math.abs(centerDiff) > 1) return centerDiff;
-    return b.opacity - a.opacity;
-  });
-
-  return candidates[0];
-}
-
-function applyPointerTilt(card, surface, rect, clientX, clientY) {
-  const index = cards.indexOf(card);
-  if (index < 0) return;
-
-  const px = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-  const py = Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
-
-  const depth = Math.abs(index - active);
-  const strength = depth === 0 ? 1 : depth === 1 ? 0.82 : 0.62;
-
-  const maxTiltX = 9 * strength;
-  const maxTiltY = 12 * strength;
-  const maxShiftX = 18 * strength;
-  const maxShiftY = 12 * strength;
-
-  const tiltY = (px - 0.5) * maxTiltY * 2;
-  const tiltX = (0.5 - py) * maxTiltX * 2;
-  const shiftX = (px - 0.5) * maxShiftX;
-  const shiftY = (py - 0.5) * maxShiftY;
-
-  if (tiltFrame) cancelAnimationFrame(tiltFrame);
-  clearTiltResetTimer(card);
-  tiltFrame = requestAnimationFrame(() => {
-    card.classList.remove('tilt-reset');
-    card.classList.add('pointer-tilt');
-    surface.style.setProperty('--tilt-x', tiltX.toFixed(2) + 'deg');
-    surface.style.setProperty('--tilt-y', tiltY.toFixed(2) + 'deg');
-    surface.style.setProperty('--pointer-x', (px * 100).toFixed(1) + '%');
-    surface.style.setProperty('--pointer-y', (py * 100).toFixed(1) + '%');
-    surface.style.setProperty('--shift-x', shiftX.toFixed(2) + 'px');
-    surface.style.setProperty('--shift-y', shiftY.toFixed(2) + 'px');
-  });
-}
-
-function resetHoveredTiltCard(slow = true) {
-  if (!hoveredTiltCard) return;
-  resetTilt(hoveredTiltCard, slow);
-  hoveredTiltCard = null;
+function clearHoveredCard() {
+  if (!hoveredCard) return;
+  hoveredCard.classList.remove('hovered');
+  hoveredCard = null;
 }
 
 carousel.addEventListener('pointermove', (event) => {
   if (isDragging || event.pointerType === 'touch') return;
 
   const hit = findVisualCardAtPointer(event.clientX, event.clientY);
+  const nextCard = hit ? hit.card : null;
 
-  if (!hit) {
-    resetHoveredTiltCard(true);
-    return;
+  if (hoveredCard && hoveredCard !== nextCard) {
+    hoveredCard.classList.remove('hovered');
   }
 
-  if (hoveredTiltCard && hoveredTiltCard !== hit.card) {
-    resetTilt(hoveredTiltCard, true);
-  }
-
-  hoveredTiltCard = hit.card;
-  applyPointerTilt(hit.card, hit.surface, hit.rect, event.clientX, event.clientY);
+  hoveredCard = nextCard;
+  hoveredCard?.classList.add('hovered');
 });
 
-carousel.addEventListener('pointerleave', () => {
-  if (isDragging) return;
-  resetHoveredTiltCard(true);
-});
-
-window.addEventListener('blur', () => {
-  resetHoveredTiltCard(true);
-});
+carousel.addEventListener('pointerleave', clearHoveredCard);
+window.addEventListener('blur', clearHoveredCard);
 
 carousel.addEventListener('keydown', (event) => {
   clearWheelMotion();
@@ -476,7 +245,7 @@ carousel.addEventListener('wheel', (event) => {
 
     if (target !== active) {
       setCarouselSpeed(320);
-      setProject(target, false);
+      setProject(target)
     }
   }
 
@@ -485,7 +254,6 @@ carousel.addEventListener('wheel', (event) => {
     wheelAccumulator = 0;
     lastWheelAt = 0;
     lastWheelStepAt = 0;
-    settleActiveCard();
     setCarouselSpeed(420);
   }, 360);
 }, { passive: false });
@@ -525,8 +293,6 @@ carousel.addEventListener('pointermove', (event) => {
     isDragging = true;
     dragMoved = true;
     prepareCarouselMotion();
-    resetHoveredTiltCard(false);
-    cards.forEach((card) => resetTilt(card, false));
     setCarouselSpeed(0);
     carousel.classList.add('dragging');
   }
@@ -564,7 +330,7 @@ function finishPointerInteraction(event) {
         openImagePreview();
       } else {
         setCarouselSpeed(360);
-        setProject(clickedIndex);
+        setProject(clickedIndex)
         window.setTimeout(() => setCarouselSpeed(420), 380);
       }
     }
@@ -603,13 +369,12 @@ function finishPointerInteraction(event) {
     active = target;
   }
 
-  updateCarousel(false);
-  settleAfterMotion();
+  updateCarousel();
 
   window.setTimeout(() => {
     setCarouselSpeed(420);
     suppressClick = false;
-  }, 320);
+  }, 220);
 
   try {
     carousel.releasePointerCapture?.(event.pointerId);
@@ -630,7 +395,7 @@ carousel.addEventListener('pointercancel', (event) => {
 
   carousel.classList.remove('dragging');
   setCarouselSpeed(420);
-  updateCarousel(true);
+  updateCarousel();
 
   try {
     carousel.releasePointerCapture?.(event.pointerId);
@@ -676,8 +441,8 @@ document.addEventListener('click', (event) => {
 });
 
 window.addEventListener('resize', () => {
-  cancelPendingSettle();
-  updateCarousel(true);
+  
+  updateCarousel();
 });
 
 updateCarousel(true);

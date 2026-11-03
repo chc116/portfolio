@@ -213,7 +213,7 @@ main {
   position: relative;
   cursor: grab;
   width: 100%;
-  height: min(570px, 64vh);
+  height: min(690px, 72vh);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -239,7 +239,7 @@ main {
 .stage {
   position: relative;
   width: min(1880px, 100vw);
-  height: 460px;
+  height: 560px;
   transform-style: preserve-3d;
 }
 
@@ -351,12 +351,12 @@ main {
 .project-card:nth-child(5) { --accent: var(--steel); }
 
 .project-card--cover {
-  width: min(520px, 82vw);
-  height: 410px;
+  width: min(700px, 86vw);
+  height: 500px;
 }
 
 .project-card--cover .card-surface {
-  padding: 20px;
+  padding: 22px;
 }
 
 .project-card--cover .card-top {
@@ -372,7 +372,7 @@ main {
 }
 
 .project-card--cover .visual-cover {
-  height: 236px;
+  height: 360px;
   margin: 12px 0 16px;
   border-radius: 15px;
   overflow: hidden;
@@ -385,9 +385,10 @@ main {
   width: 100%;
   height: 100%;
   display: block;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
-  transform: scale(1.002);
+  background: #f7fbff;
+  transform: none;
 }
 
 .card-copy {
@@ -397,7 +398,7 @@ main {
 
 .project-card--cover .card-copy h2 {
   max-width: none;
-  font-size: clamp(21px, 2vw, 27px);
+  font-size: clamp(20px, 1.8vw, 25px);
 }
 
 .project-card--cover .card-copy p {
@@ -483,6 +484,94 @@ main {
   letter-spacing: -.03em;
 }
 
+.image-preview {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: grid;
+  place-items: center;
+  padding: 34px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 280ms ease, visibility 280ms ease;
+}
+
+.image-preview.open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.image-preview-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(238,235,229,.58);
+  backdrop-filter: blur(26px) saturate(.9);
+  -webkit-backdrop-filter: blur(26px) saturate(.9);
+}
+
+.image-preview-shell {
+  position: relative;
+  z-index: 1;
+  width: min(94vw, 1500px);
+  height: min(88vh, 900px);
+  display: grid;
+  place-items: center;
+  transform: scale(.94) translateY(12px);
+  opacity: 0;
+  transition:
+    transform 380ms cubic-bezier(.2,.75,.25,1),
+    opacity 300ms ease;
+}
+
+.image-preview.open .image-preview-shell {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+.image-preview-shell img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 20px;
+  background: rgba(255,255,255,.94);
+  box-shadow:
+    0 40px 110px rgba(44,50,58,.24),
+    0 4px 20px rgba(44,50,58,.08);
+}
+
+.image-preview-close {
+  position: absolute;
+  top: -10px;
+  right: -4px;
+  z-index: 2;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(49,55,66,.12);
+  border-radius: 50%;
+  background: rgba(248,246,242,.88);
+  color: #3d444d;
+  font-size: 27px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 10px 28px rgba(44,50,58,.12);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition: transform .18s ease, background .18s ease;
+}
+
+.image-preview-close:hover {
+  transform: scale(1.05);
+  background: #fff;
+}
+
+body.preview-open {
+  overflow: hidden;
+}
+
 .carousel-controls {
   position: relative;
   z-index: 20;
@@ -566,21 +655,32 @@ footer {
   main { padding-top: 92px; justify-content: flex-start; }
   .intro { width: calc(100% - 44px); margin-top: 30px; }
   .intro h1 { font-size: 32px; }
-  .carousel { height: 520px; }
-  .stage { height: 420px; }
+  .carousel { height: 570px; }
+  .stage { height: 470px; }
   .project-card {
     width: 78vw;
     height: 350px;
   }
   .card-surface { padding: 24px; }
   .project-card--cover {
-    width: 84vw;
-    height: 370px;
+    width: 90vw;
+    height: 410px;
   }
-  .project-card--cover .card-surface { padding: 18px; }
+  .project-card--cover .card-surface { padding: 16px; }
   .project-card--cover .visual-cover {
-    height: 210px;
+    height: 270px;
     margin: 10px 0 14px;
+  }
+  .image-preview {
+    padding: 18px;
+  }
+  .image-preview-shell {
+    width: 96vw;
+    height: 88vh;
+  }
+  .image-preview-close {
+    top: 4px;
+    right: 4px;
   }
   .visual { height: 220px; }
   .ring { width: 122px; height: 122px; }

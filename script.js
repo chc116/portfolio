@@ -5,6 +5,8 @@ const previous = document.getElementById('previous');
 const next = document.getElementById('next');
 const projectNav = document.getElementById('projectNav');
 const projectToggle = document.getElementById('projectToggle');
+const imagePreview = document.getElementById('imagePreview');
+const imagePreviewClose = document.getElementById('imagePreviewClose');
 
 let active = 0;
 let pointerStart = null;
@@ -106,6 +108,21 @@ function goPrevious() {
 
 function setCarouselSpeed(milliseconds) {
   document.documentElement.style.setProperty('--carousel-speed', milliseconds + 'ms');
+}
+
+function openImagePreview() {
+  if (!imagePreview) return;
+  resetHoveredTiltCard(false);
+  imagePreview.classList.add('open');
+  imagePreview.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('preview-open');
+}
+
+function closeImagePreview() {
+  if (!imagePreview) return;
+  imagePreview.classList.remove('open');
+  imagePreview.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('preview-open');
 }
 
 function clearWheelMotion() {
@@ -371,9 +388,13 @@ function finishPointerInteraction(event) {
     suppressClick = false;
 
     if (clickedIndex !== null && clickedIndex !== undefined) {
-      setCarouselSpeed(360);
-      setProject(clickedIndex);
-      window.setTimeout(() => setCarouselSpeed(420), 380);
+      if (clickedIndex === 0 && active === 0) {
+        openImagePreview();
+      } else {
+        setCarouselSpeed(360);
+        setProject(clickedIndex);
+        window.setTimeout(() => setCarouselSpeed(420), 380);
+      }
     }
 
     try {
@@ -441,6 +462,18 @@ carousel.addEventListener('pointercancel', (event) => {
   try {
     carousel.releasePointerCapture?.(event.pointerId);
   } catch (_) {}
+});
+
+imagePreviewClose?.addEventListener('click', closeImagePreview);
+
+document.querySelectorAll('[data-preview-close]').forEach((element) => {
+  element.addEventListener('click', closeImagePreview);
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && imagePreview?.classList.contains('open')) {
+    closeImagePreview();
+  }
 });
 
 projectToggle.addEventListener('click', (event) => {

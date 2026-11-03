@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" data-build="20261104-timeline-crisp-preview-v1">
+<html lang="en" data-build="20261104-reverse-timeline-native2d-v1">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Yechen Wang — portfolio." />
   <title>Yechen Wang — Portfolio</title>
-  <link rel="stylesheet" href="styles.css?v=20261104-timeline-crisp-preview-v1" />
+  <link rel="stylesheet" href="styles.css?v=20261104-reverse-timeline-native2d-v1" />
 </head>
 <body>
   <div class="ambient" aria-hidden="true"></div>
@@ -21,11 +21,11 @@
           Projects <span class="chevron">⌄</span>
         </button>
         <div class="project-menu" id="projectMenu">
-          <button type="button" data-project="0"><span>2022</span>Training Frequency-Hopping Graphs for 6G Channel Utilization</button>
-          <button type="button" data-project="1"><span>2022</span>Ladle Car Condition Monitoring System</button>
+          <button type="button" data-project="0"><span>2024</span>Sparse Online Gaussian Process for Fluid Antenna Systems</button>
+          <button type="button" data-project="1"><span>2023</span>Enterprise Network Deployment and Troubleshooting</button>
           <button type="button" data-project="2"><span>2022</span>Impulse-Radio Ultra-Wideband Vital-Sign Monitoring</button>
-          <button type="button" data-project="3"><span>2023</span>Enterprise Network Deployment and Troubleshooting</button>
-          <button type="button" data-project="4"><span>2024</span>Sparse Online Gaussian Process for Fluid Antenna Systems</button>
+          <button type="button" data-project="3"><span>2022</span>Ladle Car Condition Monitoring System</button>
+          <button type="button" data-project="4"><span>2022</span>Training Frequency-Hopping Graphs for 6G Channel Utilization</button>
         </div>
       </div>
 
@@ -41,12 +41,17 @@
 
     <section class="carousel" id="carousel" tabindex="0" aria-label="Selected projects">
       <div class="stage">
-        <article class="project-card" data-index="0">
+        <article class="project-card project-card--cover" data-index="0">
           <div class="card-surface">
-            <div class="visual"><span class="ring"></span><span class="dot"></span></div>
+            <div class="visual visual-cover">
+              <img src="MPhilthesiscover.png?v=20261104-reverse-timeline-native2d-v1" alt="Fluid Antenna Systems research cover" />
+            </div>
             <div class="card-footer-meta">
-              <div class="card-footer-left"><h2>Training Frequency-Hopping Graphs for 6G Channel Utilization</h2></div>
-              <div class="card-footer-right"><span>Research Project</span><span>Jan. 2022 – Jun. 2022</span></div>
+              <div class="card-footer-left">
+                <h2>Sparse Online Gaussian Process for Fluid Antenna Systems</h2>
+                <p>Channel reconstruction · position selection</p>
+              </div>
+              <div class="card-footer-right"><span>Wireless Communications</span><span>Mar. 2024 – Present</span></div>
             </div>
           </div>
         </article>
@@ -55,8 +60,8 @@
           <div class="card-surface">
             <div class="visual"><span class="ring"></span><span class="dot"></span></div>
             <div class="card-footer-meta">
-              <div class="card-footer-left"><h2>Ladle Car Condition Monitoring System</h2></div>
-              <div class="card-footer-right"><span>Engineering Design</span><span>Feb. 2022 – Sept. 2022</span></div>
+              <div class="card-footer-left"><h2>Enterprise Network Deployment and Troubleshooting</h2></div>
+              <div class="card-footer-right"><span>Telecommunications Engineering</span><span>Jan. 2023 – Apr. 2023</span></div>
             </div>
           </div>
         </article>
@@ -75,23 +80,18 @@
           <div class="card-surface">
             <div class="visual"><span class="ring"></span><span class="dot"></span></div>
             <div class="card-footer-meta">
-              <div class="card-footer-left"><h2>Enterprise Network Deployment and Troubleshooting</h2></div>
-              <div class="card-footer-right"><span>Telecommunications Engineering</span><span>Jan. 2023 – Apr. 2023</span></div>
+              <div class="card-footer-left"><h2>Ladle Car Condition Monitoring System</h2></div>
+              <div class="card-footer-right"><span>Engineering Design</span><span>Feb. 2022 – Sept. 2022</span></div>
             </div>
           </div>
         </article>
 
-        <article class="project-card project-card--cover" data-index="4">
+        <article class="project-card" data-index="4">
           <div class="card-surface">
-            <div class="visual visual-cover">
-              <img src="MPhilthesiscover.png?v=20261104-timeline-crisp-preview-v1" alt="Fluid Antenna Systems research cover" />
-            </div>
+            <div class="visual"><span class="ring"></span><span class="dot"></span></div>
             <div class="card-footer-meta">
-              <div class="card-footer-left">
-                <h2>Sparse Online Gaussian Process for Fluid Antenna Systems</h2>
-                <p>Channel reconstruction · position selection</p>
-              </div>
-              <div class="card-footer-right"><span>Wireless Communications</span><span>Mar. 2024 – Present</span></div>
+              <div class="card-footer-left"><h2>Training Frequency-Hopping Graphs for 6G Channel Utilization</h2></div>
+              <div class="card-footer-right"><span>Research Project</span><span>Jan. 2022 – Jun. 2022</span></div>
             </div>
           </div>
         </article>
@@ -101,11 +101,11 @@
     <div class="carousel-controls" aria-label="Project selector">
       <button class="arrow" id="previous" type="button" aria-label="Previous project">←</button>
       <div class="selectors timeline" aria-label="Project timeline">
-        <button class="selector active" type="button" data-select="0"><span class="timeline-dot"></span><span class="timeline-date">Jan. 2022</span></button>
-        <button class="selector" type="button" data-select="1"><span class="timeline-dot"></span><span class="timeline-date">Feb. 2022</span></button>
+        <button class="selector active" type="button" data-select="0"><span class="timeline-dot"></span><span class="timeline-date">Present ← Mar. 2024</span></button>
+        <button class="selector" type="button" data-select="1"><span class="timeline-dot"></span><span class="timeline-date">Jan. 2023</span></button>
         <button class="selector" type="button" data-select="2"><span class="timeline-dot"></span><span class="timeline-date">Jul. 2022</span></button>
-        <button class="selector" type="button" data-select="3"><span class="timeline-dot"></span><span class="timeline-date">Jan. 2023</span></button>
-        <button class="selector" type="button" data-select="4"><span class="timeline-dot"></span><span class="timeline-date">Mar. 2024 → Present</span></button>
+        <button class="selector" type="button" data-select="3"><span class="timeline-dot"></span><span class="timeline-date">Feb. 2022</span></button>
+        <button class="selector" type="button" data-select="4"><span class="timeline-dot"></span><span class="timeline-date">Jan. 2022</span></button>
       </div>
       <button class="arrow" id="next" type="button" aria-label="Next project">→</button>
     </div>
@@ -122,7 +122,7 @@
         <time>Mar. 2024 – Present</time>
       </aside>
       <div class="image-preview-media">
-        <img id="imagePreviewImage" src="MPhilthesiscover.png?v=20261104-timeline-crisp-preview-v1" alt="Fluid Antenna Systems research cover preview" />
+        <img id="imagePreviewImage" src="MPhilthesiscover.png?v=20261104-reverse-timeline-native2d-v1" alt="Fluid Antenna Systems research cover preview" />
       </div>
     </div>
   </div>
@@ -131,8 +131,8 @@
     <span>Yechen Wang</span>
     <span>Drag · scroll · arrow keys</span>
   </footer>
-  <script src="script.js?v=20261104-timeline-crisp-preview-v1"></script>
+  <script src="script.js?v=20261104-reverse-timeline-native2d-v1"></script>
 </body>
 </html>
 
-<!-- portfolio-build: 20261104-timeline-crisp-preview-v1 -->
+<!-- portfolio-build: 20261104-reverse-timeline-native2d-v1 -->

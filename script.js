@@ -89,8 +89,8 @@ function updateTimelineRange(index) {
       !timelineEndLabel || !timelineStartLabel) return;
 
   const period = projectPeriods[index] || projectPeriods[0];
-  const minPct = 7;
-  const spanPct = 86;
+  const minPct = 3.5;
+  const spanPct = 93;
   const totalMonths = 58;
 
   const endPct = minPct + (period.endMonths / totalMonths) * spanPct;
@@ -106,12 +106,12 @@ function updateTimelineRange(index) {
   timelineEndLabel.textContent = period.end;
   timelineStartLabel.textContent = period.start;
 
-  timelineOverview.classList.toggle('compact-range', width < 11);
+  timelineOverview.classList.toggle('compact-range', width < 13);
 
-  timelineEndMarker.classList.toggle('near-left', endPct < 16);
-  timelineEndMarker.classList.toggle('near-right', endPct > 84);
-  timelineStartMarker.classList.toggle('near-left', startPct < 16);
-  timelineStartMarker.classList.toggle('near-right', startPct > 84);
+  timelineEndMarker.classList.toggle('near-left', endPct < 9);
+  timelineEndMarker.classList.toggle('near-right', endPct > 91);
+  timelineStartMarker.classList.toggle('near-left', startPct < 9);
+  timelineStartMarker.classList.toggle('near-right', startPct > 91);
 }
 
 function updateCarousel() {
@@ -497,8 +497,13 @@ document.querySelectorAll('[data-preview-close]').forEach((element) => {
 });
 
 imagePreview?.addEventListener('click', (event) => {
-  const interactive = event.target.closest('.image-preview-info, .image-preview-media, .image-preview-close');
-  if (!interactive) closeImagePreview();
+  const largeVisual = event.target.closest('#imagePreviewImage, #imagePreviewGraphic');
+  const closeButton = event.target.closest('.image-preview-close');
+
+  if (closeButton) return;
+  if (largeVisual) return;
+
+  closeImagePreview();
 });
 
 document.addEventListener('keydown', (event) => {

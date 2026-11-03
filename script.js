@@ -108,10 +108,10 @@ function updateTimelineRange(index) {
 
   timelineOverview.classList.toggle('compact-range', width < 11);
 
-  timelineEndMarker.classList.toggle('near-left', endPct < 12);
-  timelineEndMarker.classList.toggle('near-right', endPct > 88);
-  timelineStartMarker.classList.toggle('near-left', startPct < 12);
-  timelineStartMarker.classList.toggle('near-right', startPct > 88);
+  timelineEndMarker.classList.toggle('near-left', endPct < 16);
+  timelineEndMarker.classList.toggle('near-right', endPct > 84);
+  timelineStartMarker.classList.toggle('near-left', startPct < 16);
+  timelineStartMarker.classList.toggle('near-right', startPct > 84);
 }
 
 function updateCarousel() {
@@ -494,6 +494,11 @@ imagePreviewClose?.addEventListener('click', closeImagePreview);
 
 document.querySelectorAll('[data-preview-close]').forEach((element) => {
   element.addEventListener('click', closeImagePreview);
+});
+
+imagePreview?.addEventListener('click', (event) => {
+  const interactive = event.target.closest('.image-preview-info, .image-preview-media, .image-preview-close');
+  if (!interactive) closeImagePreview();
 });
 
 document.addEventListener('keydown', (event) => {

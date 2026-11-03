@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" data-build="20261104-hybrid-motion-crisp-v1">
+<html lang="en" data-build="20261104-project-range-timeline-v1">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Yechen Wang — portfolio." />
   <title>Yechen Wang — Portfolio</title>
-  <link rel="stylesheet" href="styles.css?v=20261104-hybrid-motion-crisp-v1" />
+  <link rel="stylesheet" href="styles.css?v=20261104-project-range-timeline-v1" />
 </head>
 <body>
   <div class="ambient" aria-hidden="true"></div>
@@ -44,14 +44,18 @@
         <article class="project-card project-card--cover" data-index="0">
           <div class="card-surface">
             <div class="visual visual-cover">
-              <img src="MPhilthesiscover.png?v=20261104-hybrid-motion-crisp-v1" alt="Fluid Antenna Systems research cover" />
+              <img src="MPhilthesiscover.png?v=20261104-project-range-timeline-v1" alt="Fluid Antenna Systems research cover" />
             </div>
             <div class="card-footer-meta">
               <div class="card-footer-left">
                 <h2>Sparse Online Gaussian Process for Fluid Antenna Systems</h2>
                 <p>Channel reconstruction · position selection</p>
               </div>
-              <div class="card-footer-right"><span>Wireless Communications</span><span>Mar. 2024 – Present</span></div>
+              <div class="card-footer-right"><span>Wireless Communications</span></div>
+              <div class="card-period">
+                <span><small>End</small>Present</span>
+                <span><small>Start</small>Mar. 2024</span>
+              </div>
             </div>
           </div>
         </article>
@@ -61,7 +65,11 @@
             <div class="visual"><span class="ring"></span><span class="dot"></span></div>
             <div class="card-footer-meta">
               <div class="card-footer-left"><h2>Enterprise Network Deployment and Troubleshooting</h2></div>
-              <div class="card-footer-right"><span>Telecommunications Engineering</span><span>Jan. 2023 – Apr. 2023</span></div>
+              <div class="card-footer-right"><span>Telecommunications Engineering</span></div>
+              <div class="card-period">
+                <span><small>End</small>Apr. 2023</span>
+                <span><small>Start</small>Jan. 2023</span>
+              </div>
             </div>
           </div>
         </article>
@@ -71,7 +79,11 @@
             <div class="visual"><span class="ring"></span><span class="dot"></span></div>
             <div class="card-footer-meta">
               <div class="card-footer-left"><h2>Impulse-Radio Ultra-Wideband Vital-Sign Monitoring</h2></div>
-              <div class="card-footer-right"><span>Research Project</span><span>Jul. 2022 – Jun. 2023</span></div>
+              <div class="card-footer-right"><span>Research Project</span></div>
+              <div class="card-period">
+                <span><small>End</small>Jun. 2023</span>
+                <span><small>Start</small>Jul. 2022</span>
+              </div>
             </div>
           </div>
         </article>
@@ -81,7 +93,11 @@
             <div class="visual"><span class="ring"></span><span class="dot"></span></div>
             <div class="card-footer-meta">
               <div class="card-footer-left"><h2>Ladle Car Condition Monitoring System</h2></div>
-              <div class="card-footer-right"><span>Engineering Design</span><span>Feb. 2022 – Sept. 2022</span></div>
+              <div class="card-footer-right"><span>Engineering Design</span></div>
+              <div class="card-period">
+                <span><small>End</small>Sept. 2022</span>
+                <span><small>Start</small>Feb. 2022</span>
+              </div>
             </div>
           </div>
         </article>
@@ -91,21 +107,35 @@
             <div class="visual"><span class="ring"></span><span class="dot"></span></div>
             <div class="card-footer-meta">
               <div class="card-footer-left"><h2>Training Frequency-Hopping Graphs for 6G Channel Utilization</h2></div>
-              <div class="card-footer-right"><span>Research Project</span><span>Jan. 2022 – Jun. 2022</span></div>
+              <div class="card-footer-right"><span>Research Project</span></div>
+              <div class="card-period">
+                <span><small>End</small>Jun. 2022</span>
+                <span><small>Start</small>Jan. 2022</span>
+              </div>
             </div>
           </div>
         </article>
       </div>
     </section>
 
-    <div class="carousel-controls" aria-label="Project selector">
+    <div class="carousel-controls" aria-label="Project timeline">
       <button class="arrow" id="previous" type="button" aria-label="Previous project">←</button>
-      <div class="selectors timeline" aria-label="Project timeline">
-        <button class="selector active" type="button" data-select="0"><span class="timeline-dot"></span><span class="timeline-date">Present ← Mar. 2024</span></button>
-        <button class="selector" type="button" data-select="1"><span class="timeline-dot"></span><span class="timeline-date">Jan. 2023</span></button>
-        <button class="selector" type="button" data-select="2"><span class="timeline-dot"></span><span class="timeline-date">Jul. 2022</span></button>
-        <button class="selector" type="button" data-select="3"><span class="timeline-dot"></span><span class="timeline-date">Feb. 2022</span></button>
-        <button class="selector" type="button" data-select="4"><span class="timeline-dot"></span><span class="timeline-date">Jan. 2022</span></button>
+      <div class="timeline-scale" id="timelineScale">
+        <div class="timeline-track" aria-hidden="true">
+          <span class="timeline-range" id="timelineRange"></span>
+        </div>
+        <div class="timeline-ticks" aria-hidden="true">
+          <span class="timeline-tick" data-time-index="0"><i></i><b>Present</b></span>
+          <span class="timeline-tick" data-time-index="1"><i></i><b>Mar. 2024</b></span>
+          <span class="timeline-tick" data-time-index="2"><i></i><b>Jun. 2023</b></span>
+          <span class="timeline-tick" data-time-index="3"><i></i><b>Apr. 2023</b></span>
+          <span class="timeline-tick" data-time-index="4"><i></i><b>Jan. 2023</b></span>
+          <span class="timeline-tick" data-time-index="5"><i></i><b>Sept. 2022</b></span>
+          <span class="timeline-tick" data-time-index="6"><i></i><b>Jul. 2022</b></span>
+          <span class="timeline-tick" data-time-index="7"><i></i><b>Jun. 2022</b></span>
+          <span class="timeline-tick" data-time-index="8"><i></i><b>Feb. 2022</b></span>
+          <span class="timeline-tick" data-time-index="9"><i></i><b>Jan. 2022</b></span>
+        </div>
       </div>
       <button class="arrow" id="next" type="button" aria-label="Next project">→</button>
     </div>
@@ -116,13 +146,13 @@
     <div class="image-preview-shell">
       <button class="image-preview-close" id="imagePreviewClose" type="button" aria-label="Close preview">×</button>
       <aside class="image-preview-info">
-        <span class="preview-kicker">Wireless Communications</span>
         <h2>Sparse Online Gaussian Process for Fluid Antenna Systems</h2>
-        <p>Channel reconstruction · position selection</p>
+        <p class="preview-keywords">Channel reconstruction · position selection</p>
+        <span class="preview-category">Wireless Communications</span>
         <time>Mar. 2024 – Present</time>
       </aside>
       <div class="image-preview-media">
-        <img id="imagePreviewImage" src="MPhilthesiscover.png?v=20261104-hybrid-motion-crisp-v1" alt="Fluid Antenna Systems research cover preview" />
+        <img id="imagePreviewImage" src="MPhilthesiscover.png?v=20261104-project-range-timeline-v1" alt="Fluid Antenna Systems research cover preview" />
       </div>
     </div>
   </div>
@@ -131,8 +161,8 @@
     <span>Yechen Wang</span>
     <span>Drag · scroll · arrow keys</span>
   </footer>
-  <script src="script.js?v=20261104-hybrid-motion-crisp-v1"></script>
+  <script src="script.js?v=20261104-project-range-timeline-v1"></script>
 </body>
 </html>
 
-<!-- portfolio-build: 20261104-hybrid-motion-crisp-v1 -->
+<!-- portfolio-build: 20261104-project-range-timeline-v1 -->

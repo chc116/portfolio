@@ -22,9 +22,7 @@ html, body {
   background: var(--bg);
   color: var(--text);
   font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-  text-rendering: geometricPrecision;
-  -webkit-font-smoothing: auto;
-  font-smooth: auto;
+  text-rendering: optimizeLegibility;
 }
 
 body {
@@ -255,6 +253,8 @@ main {
   pointer-events: none; /* carousel owns interaction */
   transform-style: preserve-3d;
   transition:
+    left var(--carousel-speed, 420ms) cubic-bezier(.18,.82,.24,1),
+    top var(--carousel-speed, 420ms) cubic-bezier(.18,.82,.24,1),
     transform var(--carousel-speed, 420ms) cubic-bezier(.18,.82,.24,1),
     opacity var(--carousel-speed, 420ms) ease,
     filter var(--carousel-speed, 420ms) ease;
@@ -320,8 +320,14 @@ main {
   pointer-events: none;
 }
 
+.project-card.active {
+  transform-style: flat;
+  will-change: auto;
+}
+
 .project-card.active .card-surface {
   border-color: var(--line-strong);
+  transform-style: flat;
 }
 
 .project-card.active:not(.pointer-tilt) .card-surface {
@@ -384,6 +390,7 @@ main {
   object-position: center;
   background: #f7fbff;
   transform: none;
+  image-rendering: -webkit-optimize-contrast;
 }
 
 .card-footer-meta {

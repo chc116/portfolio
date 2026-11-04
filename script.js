@@ -177,7 +177,7 @@ function openProjectPreview(index = active) {
   imagePreview.classList.toggle('graphic-mode', !isImage);
 
   if (isImage && imagePreviewImage) {
-    const source = card.querySelector('.visual-cover img');
+    const source = card.querySelector('.visual img');
     if (source) {
       imagePreviewImage.src = source.src;
       imagePreviewImage.alt = (card.dataset.title || 'Project') + ' preview';

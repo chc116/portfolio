@@ -927,3 +927,22 @@ body.preview-open {
   background: #7187b1;
   box-shadow: 0 0 20px rgba(113,135,177,.42);
 }
+
+
+/* Project image covers for standard-size cards */
+.visual-project-image {
+  height: 310px;
+  margin-bottom: 12px;
+  border-radius: 15px;
+  overflow: hidden;
+  background: transparent;
+  box-shadow: 0 10px 24px rgba(67,79,91,.065);
+}
+.visual-project-image img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+  image-rendering: -webkit-optimize-contrast;
+}

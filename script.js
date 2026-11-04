@@ -176,7 +176,7 @@ function openProjectPreview(index = active) {
 
   const previewMode = card.dataset.preview || 'graphic';
   const isImage = previewMode === 'image';
-  const gridSources = [...card.querySelectorAll('.detail-grid-sources img')];
+  const gridSources = [...card.querySelectorAll('.detail-grid-sources .detail-png-tile')];
   const isGrid = previewMode === 'grid' && gridSources.length > 1;
 
   imagePreview.classList.toggle('graphic-mode', !(isImage || isGrid));
@@ -189,8 +189,8 @@ function openProjectPreview(index = active) {
 
   if (isGrid && imagePreviewGrid) {
     gridSources.forEach((source) => {
-      const previewImage = source.cloneNode(true);
-      imagePreviewGrid.appendChild(previewImage);
+      const previewTile = source.cloneNode(true);
+      imagePreviewGrid.appendChild(previewTile);
     });
   } else if (isImage && imagePreviewImage) {
     const source = card.querySelector('.visual img');

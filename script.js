@@ -50,8 +50,8 @@ function linearDistance(index, current) {
 
 function getCardSpacing() {
   return window.innerWidth <= 760
-    ? Math.min(window.innerWidth * 0.78, 330)
-    : Math.min(Math.max(window.innerWidth * 0.45, 650), 800);
+    ? Math.min(window.innerWidth * 0.94, 390)
+    : Math.min(Math.max(window.innerWidth * 0.50, 920), 980);
 }
 
 function getCardLayout(index) {
@@ -174,11 +174,12 @@ function openProjectPreview(index = active) {
   previewCategory.textContent = card.dataset.category || '';
   previewTime.textContent = card.dataset.period || '';
 
-  const isImage = card.dataset.preview === 'image';
-  const gridSources = [...card.querySelectorAll('.visual-project-grid img')];
-  const isGrid = gridSources.length > 1;
+  const previewMode = card.dataset.preview || 'graphic';
+  const isImage = previewMode === 'image';
+  const gridSources = [...card.querySelectorAll('.detail-grid-sources img')];
+  const isGrid = previewMode === 'grid' && gridSources.length > 1;
 
-  imagePreview.classList.toggle('graphic-mode', !isImage);
+  imagePreview.classList.toggle('graphic-mode', !(isImage || isGrid));
   imagePreview.classList.toggle('grid-mode', isGrid);
 
   if (imagePreviewGrid) {

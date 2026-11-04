@@ -175,7 +175,7 @@ function openProjectPreview(index = active) {
   previewTime.textContent = card.dataset.period || '';
 
   const isImage = card.dataset.preview === 'image';
-  const gridSources = [...card.querySelectorAll('.visual-project-grid svg')];
+  const gridSources = [...card.querySelectorAll('.visual-project-grid img')];
   const isGrid = gridSources.length > 1;
 
   imagePreview.classList.toggle('graphic-mode', !isImage);
@@ -188,9 +188,8 @@ function openProjectPreview(index = active) {
 
   if (isGrid && imagePreviewGrid) {
     gridSources.forEach((source) => {
-      const previewVisual = source.cloneNode(true);
-      previewVisual.setAttribute('role', 'img');
-      imagePreviewGrid.appendChild(previewVisual);
+      const previewImage = source.cloneNode(true);
+      imagePreviewGrid.appendChild(previewImage);
     });
   } else if (isImage && imagePreviewImage) {
     const source = card.querySelector('.visual img');

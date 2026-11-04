@@ -367,7 +367,6 @@ main {
   object-position: center;
   background: transparent;
   transform: scale(1.012);
-  image-rendering: -webkit-optimize-contrast;
 }
 
 .card-footer-meta {
@@ -944,7 +943,6 @@ body.preview-open {
   display: block;
   object-fit: cover;
   object-position: center;
-  image-rendering: -webkit-optimize-contrast;
 }
 
 
@@ -1031,5 +1029,26 @@ body.preview-open {
   display: block;
   object-fit: cover;
   object-position: center;
-  image-rendering: -webkit-optimize-contrast;
+}
+
+
+/* Internship detail preview: four quadrants of the approved PNG cover */
+.detail-png-tile {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  display: block;
+  background-image: url("ITTinterncover.png?v=20261104-internship-png-preview-v6");
+  background-repeat: no-repeat;
+  background-size: 200% 200%;
+  background-color: #f1ede6;
+}
+.detail-png-tile--tl { background-position: 0 0; }
+.detail-png-tile--tr { background-position: 100% 0; }
+.detail-png-tile--bl { background-position: 0 100%; }
+.detail-png-tile--br { background-position: 100% 100%; }
+
+.image-preview-grid .detail-png-tile {
+  border-radius: 12px;
 }

@@ -519,12 +519,12 @@ main {
   position: relative;
   z-index: 1;
   pointer-events: none;
-  width: min(95vw, 1580px);
-  height: min(88vh, 900px);
+  width: min(98vw, 1840px);
+  height: min(92vh, 1040px);
   display: grid;
-  grid-template-columns: minmax(340px, 430px) minmax(0, 1fr);
+  grid-template-columns: minmax(270px, 340px) minmax(0, 1fr);
   align-items: center;
-  gap: clamp(28px, 4vw, 64px);
+  gap: clamp(20px, 2.5vw, 42px);
   transform: translateY(12px);
   opacity: 0;
   transition:
@@ -969,7 +969,7 @@ body.preview-open {
 }
 .image-preview-grid {
   display: none;
-  width: min(100%, 980px);
+  width: min(100%, 1320px);
   aspect-ratio: 1.88 / 1;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-template-rows: repeat(2, minmax(0, 1fr));
@@ -1039,7 +1039,7 @@ body.preview-open {
   min-width: 0;
   min-height: 0;
   display: block;
-  background-image: url("ITTinterncover.png?v=20261104-internship-png-preview-v6");
+  background-image: url("ITTinterncover.png?v=20261104-internship-preview-large-v7");
   background-repeat: no-repeat;
   background-size: 200% 200%;
   background-color: #f1ede6;

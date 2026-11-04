@@ -22,6 +22,7 @@ const projectToggle = document.getElementById('projectToggle');
 const imagePreview = document.getElementById('imagePreview');
 const imagePreviewClose = document.getElementById('imagePreviewClose');
 const imagePreviewImage = document.getElementById('imagePreviewImage');
+const imagePreviewGrid = document.getElementById('imagePreviewGrid');
 const previewTitle = document.getElementById('previewTitle');
 const previewKeywords = document.getElementById('previewKeywords');
 const previewCategory = document.getElementById('previewCategory');
@@ -174,9 +175,25 @@ function openProjectPreview(index = active) {
   previewTime.textContent = card.dataset.period || '';
 
   const isImage = card.dataset.preview === 'image';
-  imagePreview.classList.toggle('graphic-mode', !isImage);
+  const gridSources = [...card.querySelectorAll('.visual-project-grid img')];
+  const isGrid = gridSources.length > 1;
 
-  if (isImage && imagePreviewImage) {
+  imagePreview.classList.toggle('graphic-mode', !isImage);
+  imagePreview.classList.toggle('grid-mode', isGrid);
+
+  if (imagePreviewGrid) {
+    imagePreviewGrid.replaceChildren();
+    imagePreviewGrid.setAttribute('aria-hidden', String(!isGrid));
+  }
+
+  if (isGrid && imagePreviewGrid) {
+    gridSources.forEach((source) => {
+      const previewImage = document.createElement('img');
+      previewImage.src = source.src;
+      previewImage.alt = source.alt || (card.dataset.title || 'Project') + ' preview';
+      imagePreviewGrid.appendChild(previewImage);
+    });
+  } else if (isImage && imagePreviewImage) {
     const source = card.querySelector('.visual img');
     if (source) {
       imagePreviewImage.src = source.src;
@@ -497,7 +514,7 @@ document.querySelectorAll('[data-preview-close]').forEach((element) => {
 });
 
 imagePreview?.addEventListener('click', (event) => {
-  const largeVisual = event.target.closest('#imagePreviewImage, #imagePreviewGraphic');
+  const largeVisual = event.target.closest('#imagePreviewImage, #imagePreviewGrid, #imagePreviewGraphic');
   const closeButton = event.target.closest('.image-preview-close');
 
   if (closeButton) return;

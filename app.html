@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" data-build="20261104-internship-preview-large-v7">
+<html lang="en" data-build="20261104-internship-tile-zoom-v8">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Yechen Wang — portfolio." />
   <title>Yechen Wang — Portfolio</title>
-  <link rel="stylesheet" href="styles.css?v=20261104-internship-preview-large-v7" />
+  <link rel="stylesheet" href="styles.css?v=20261104-internship-tile-zoom-v8" />
 </head>
 <body>
   <div class="ambient" aria-hidden="true"></div>
@@ -44,7 +44,7 @@
         <article class="project-card project-card--cover" data-index="0" data-title="Sparse Online Gaussian Process for Fluid Antenna Systems" data-keywords="Channel reconstruction · position selection" data-category="Wireless Communications" data-period="Mar. 2024 – Present" data-preview="image">
           <div class="card-surface">
             <div class="visual visual-cover">
-              <img src="MPhilthesiscover.png?v=20261104-internship-preview-large-v7" alt="Fluid Antenna Systems research cover" />
+              <img src="MPhilthesiscover.png?v=20261104-internship-tile-zoom-v8" alt="Fluid Antenna Systems research cover" />
             </div>
             <div class="card-footer-meta">
               <div class="card-footer-left">
@@ -63,7 +63,7 @@
         <article class="project-card project-card--cover" data-index="1" data-title="Enterprise Network Deployment and Troubleshooting" data-keywords="Enterprise networks · deployment · troubleshooting" data-category="Telecommunications Engineering" data-period="Jan. 2023 – Apr. 2023" data-preview="grid">
           <div class="card-surface">
             <div class="visual visual-cover">
-              <img src="ITTinterncover.png?v=20261104-internship-preview-large-v7" alt="Enterprise Network Deployment and Troubleshooting internship cover" />
+              <img src="ITTinterncover.png?v=20261104-internship-tile-zoom-v8" alt="Enterprise Network Deployment and Troubleshooting internship cover" />
             </div>
             <div class="detail-grid-sources" hidden aria-hidden="true">
               <div class="detail-png-tile detail-png-tile--tl" role="img" aria-label="Aruba access point and MOBOTIX camera installation"></div>
@@ -159,7 +159,7 @@
       </aside>
 
       <div class="image-preview-media">
-        <img id="imagePreviewImage" src="MPhilthesiscover.png?v=20261104-internship-preview-large-v7" alt="Fluid Antenna Systems research cover preview" />
+        <img id="imagePreviewImage" src="MPhilthesiscover.png?v=20261104-internship-tile-zoom-v8" alt="Fluid Antenna Systems research cover preview" />
         <div class="image-preview-grid" id="imagePreviewGrid" aria-hidden="true"></div>
         <div class="image-preview-graphic" id="imagePreviewGraphic" aria-hidden="true">
           <span class="preview-ring"></span>
@@ -169,8 +169,17 @@
     </div>
   </div>
 
-  <script src="script.js?v=20261104-internship-preview-large-v7"></script>
+  <div class="detail-zoom" id="detailZoom" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Internship image detail">
+    <div class="detail-zoom-backdrop" data-detail-zoom-close></div>
+    <div class="detail-zoom-shell">
+      <button class="detail-zoom-close" id="detailZoomClose" type="button" aria-label="Close detailed image">×</button>
+      <div class="detail-zoom-image detail-png-tile detail-png-tile--tl" id="detailZoomImage" role="img"></div>
+      <div class="detail-zoom-label" id="detailZoomLabel"></div>
+    </div>
+  </div>
+
+  <script src="script.js?v=20261104-internship-tile-zoom-v8"></script>
 </body>
 </html>
 
-<!-- portfolio-build: 20261104-internship-preview-large-v7 -->
+<!-- portfolio-build: 20261104-internship-tile-zoom-v8 -->

@@ -23,6 +23,10 @@ const imagePreview = document.getElementById('imagePreview');
 const imagePreviewClose = document.getElementById('imagePreviewClose');
 const imagePreviewImage = document.getElementById('imagePreviewImage');
 const imagePreviewGrid = document.getElementById('imagePreviewGrid');
+const detailZoom = document.getElementById('detailZoom');
+const detailZoomImage = document.getElementById('detailZoomImage');
+const detailZoomClose = document.getElementById('detailZoomClose');
+const detailZoomLabel = document.getElementById('detailZoomLabel');
 const previewTitle = document.getElementById('previewTitle');
 const previewKeywords = document.getElementById('previewKeywords');
 const previewCategory = document.getElementById('previewCategory');
@@ -205,8 +209,30 @@ function openProjectPreview(index = active) {
   document.body.classList.add('preview-open');
 }
 
+function closeDetailZoom() {
+  if (!detailZoom) return;
+  detailZoom.classList.remove('open');
+  detailZoom.setAttribute('aria-hidden', 'true');
+}
+
+function openDetailZoom(tile) {
+  if (!detailZoom || !detailZoomImage || !tile) return;
+
+  const quadrantClass = [...tile.classList].find((name) => name.startsWith('detail-png-tile--'));
+  if (!quadrantClass) return;
+
+  detailZoomImage.className = 'detail-zoom-image detail-png-tile ' + quadrantClass;
+  const label = tile.getAttribute('aria-label') || 'Internship image detail';
+  detailZoomImage.setAttribute('aria-label', label);
+  if (detailZoomLabel) detailZoomLabel.textContent = label;
+
+  detailZoom.classList.add('open');
+  detailZoom.setAttribute('aria-hidden', 'false');
+}
+
 function closeImagePreview() {
   if (!imagePreview) return;
+  closeDetailZoom();
   imagePreview.classList.remove('open');
   imagePreview.setAttribute('aria-hidden', 'true');
   document.body.classList.remove('preview-open');
@@ -512,6 +538,24 @@ document.querySelectorAll('[data-preview-close]').forEach((element) => {
   element.addEventListener('click', closeImagePreview);
 });
 
+imagePreviewGrid?.addEventListener('click', (event) => {
+  const tile = event.target.closest('.detail-png-tile');
+  if (!tile) return;
+  event.stopPropagation();
+  openDetailZoom(tile);
+});
+
+detailZoomClose?.addEventListener('click', closeDetailZoom);
+
+document.querySelectorAll('[data-detail-zoom-close]').forEach((element) => {
+  element.addEventListener('click', closeDetailZoom);
+});
+
+detailZoom?.addEventListener('click', (event) => {
+  if (event.target.closest('.detail-zoom-image, .detail-zoom-close, .detail-zoom-label')) return;
+  closeDetailZoom();
+});
+
 imagePreview?.addEventListener('click', (event) => {
   const largeVisual = event.target.closest('#imagePreviewImage, #imagePreviewGrid, #imagePreviewGraphic');
   const closeButton = event.target.closest('.image-preview-close');
@@ -523,7 +567,14 @@ imagePreview?.addEventListener('click', (event) => {
 });
 
 document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape' && imagePreview?.classList.contains('open')) {
+  if (event.key !== 'Escape') return;
+
+  if (detailZoom?.classList.contains('open')) {
+    closeDetailZoom();
+    return;
+  }
+
+  if (imagePreview?.classList.contains('open')) {
     closeImagePreview();
   }
 });

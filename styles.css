@@ -1039,7 +1039,7 @@ body.preview-open {
   min-width: 0;
   min-height: 0;
   display: block;
-  background-image: url("ITTinterncover.png?v=20261104-internship-preview-large-v7");
+  background-image: url("ITTinterncover.png?v=20261104-internship-tile-zoom-v8");
   background-repeat: no-repeat;
   background-size: 200% 200%;
   background-color: #f1ede6;
@@ -1051,4 +1051,110 @@ body.preview-open {
 
 .image-preview-grid .detail-png-tile {
   border-radius: 12px;
+}
+
+
+/* Second-level detailed image viewer */
+.image-preview-grid .detail-png-tile {
+  cursor: zoom-in;
+}
+
+.detail-zoom {
+  position: fixed;
+  inset: 0;
+  z-index: 520;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 220ms ease, visibility 220ms ease;
+}
+
+.detail-zoom.open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.detail-zoom-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(28, 31, 36, .72);
+  backdrop-filter: blur(18px) saturate(.85);
+  -webkit-backdrop-filter: blur(18px) saturate(.85);
+}
+
+.detail-zoom-shell {
+  position: relative;
+  z-index: 1;
+  width: min(96vw, 1680px, calc(88vh * 1.88));
+  aspect-ratio: 1.88 / 1;
+  pointer-events: auto;
+}
+
+.detail-zoom-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  box-shadow: 0 38px 110px rgba(0,0,0,.34);
+  background-color: #f1ede6;
+}
+
+.detail-zoom-label {
+  position: absolute;
+  left: 18px;
+  bottom: 16px;
+  max-width: calc(100% - 92px);
+  padding: 8px 11px;
+  border-radius: 10px;
+  background: rgba(28,31,36,.68);
+  color: rgba(255,255,255,.94);
+  font-size: 13px;
+  line-height: 1.25;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.detail-zoom-close {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  z-index: 3;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255,255,255,.28);
+  border-radius: 50%;
+  background: rgba(248,246,242,.94);
+  color: #343a43;
+  font-size: 28px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 14px 36px rgba(0,0,0,.22);
+}
+
+.detail-zoom-close:hover {
+  transform: scale(1.04);
+}
+
+@media (max-width: 760px) {
+  .detail-zoom {
+    padding: 10px;
+  }
+
+  .detail-zoom-shell {
+    width: min(98vw, calc(82vh * 1.88));
+  }
+
+  .detail-zoom-close {
+    top: 8px;
+    right: 8px;
+  }
+
+  .detail-zoom-label {
+    left: 10px;
+    bottom: 10px;
+    font-size: 12px;
+  }
 }
